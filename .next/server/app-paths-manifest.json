@@ -1,6 +1,11 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/songs/route": "app/api/songs/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/api/tracks/create/route": "app/api/tracks/create/route.js",
+  "/auth/signup/page": "app/auth/signup/page.js",
+  "/library/page": "app/library/page.js",
   "/auth/signin/page": "app/auth/signin/page.js",
   "/page": "app/page.js",
-  "/auth/signup/page": "app/auth/signup/page.js",
   "/create/page": "app/create/page.js"
 }

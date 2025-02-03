@@ -1,5 +1,5 @@
 node_modules
 .vscode
-.next/**
+.next
 .DS_Store
 .env
