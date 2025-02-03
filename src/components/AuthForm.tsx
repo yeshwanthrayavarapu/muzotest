@@ -1,26 +1,67 @@
-'use client';
+"use client";
 
-import React from 'react';
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-interface AuthFormProps {
-  type: 'signin' | 'signup';
-  onSubmit: (data: { email: string; password: string; name?: string }) => void;
-}
+type AuthFormProps = {
 
-export function AuthForm({ type, onSubmit }: AuthFormProps) {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    type: 'signup' | 'signin';
+  
+    onSubmit: (data: { name: string; email: string; password: string }) => Promise<void>;
+  
+  };
+  
+
+export function AuthForm({ type }: AuthFormProps) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+
     const formData = new FormData(e.currentTarget);
-    onSubmit({
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
-      name: formData.get('name') as string,
-    });
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const name = formData.get("name") as string | undefined;
+
+    try {
+      if (type === "signin") {
+        const result = await signIn("credentials", {
+          redirect: false,
+          email,
+          password,
+        });
+
+        if (result?.error) {
+          setError("Invalid email or password.");
+          return;
+        }
+
+        router.push("/dashboard"); // Redirect to a protected page
+      } else {
+        // Sign-up via API
+        const response = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Sign-up failed. Try again.");
+        }
+
+        router.push("/signin"); // Redirect to sign-in after successful sign-up
+      }
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {type === 'signup' && (
+      {type === "signup" && (
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
             Name
@@ -58,12 +99,16 @@ export function AuthForm({ type, onSubmit }: AuthFormProps) {
           className="w-full px-4 py-2 bg-[#2a264d] border border-gray-600 rounded-lg focus:outline-none focus:border-cyan-400 text-white"
         />
       </div>
+
+      {error && <p className="text-red-500">{error}</p>}
+
       <button
         type="submit"
         className="w-full py-2 px-4 bg-cyan-400 text-black rounded-lg font-medium hover:bg-cyan-500 transition-colors"
       >
-        {type === 'signup' ? 'Sign Up' : 'Sign In'}
+        {type === "signup" ? "Sign Up" : "Sign In"}
       </button>
     </form>
   );
 }
+
