@@ -9,7 +9,10 @@ export default function HomePage() {
         <div className="max-w-xl">
           <h1 className="text-5xl font-bold leading-tight">
             Experience the Future of{' '}
-            <span className="text-cyan-400">Music</span> with AI
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+              Music
+            </span>{' '}
+            with AI
           </h1>
           <p className="mt-6 text-lg text-gray-400">
             Create your own music with AI. Type in your description or upload your audio.
@@ -17,7 +20,7 @@ export default function HomePage() {
           <div className="mt-8">
             <Link
               href="/create"
-              className="inline-flex items-center px-8 py-3 bg-cyan-400 text-black font-semibold rounded-md hover:bg-cyan-500 transition-colors"
+              className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-semibold rounded-md hover:opacity-90 transition-opacity"
             >
               Get Started →
             </Link>
@@ -25,17 +28,24 @@ export default function HomePage() {
         </div>
         
         <div className="w-1/2">
-          <img
-            src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80"
-            alt="Music Visualization"
-            className="w-full max-w-lg mx-auto rounded-lg shadow-xl"
-          />
+          <div className="relative">
+            <div className="absolute -inset-1 to-blue-500 rounded-lg blur opacity-30"></div>
+            <img
+              src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80"
+              alt="Music Visualization"
+              className="relative w-full max-w-lg mx-auto rounded-lg"
+            />
+          </div>
         </div>
       </div>
 
       {/* Features Section */}
       <div className="py-20 px-12">
-        <h2 className="text-4xl font-bold text-center text-cyan-400 mb-16">How It Works</h2>
+        <h2 className="text-4xl font-bold text-center mb-16">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+            How It Works
+          </span>
+        </h2>
         <div className="flex justify-center gap-24 flex-wrap">
           {[
             {
@@ -54,8 +64,8 @@ export default function HomePage() {
               description: "Download your fully-generated AI music in seconds."
             }
           ].map((feature, index) => (
-            <div key={index} className="flex flex-col items-center text-center max-w-xs">
-              <div className="mb-6 p-4 bg-[#1a0b2e] rounded-full">
+            <div key={index} className="flex flex-col items-center text-center max-w-xs group">
+              <div className="mb-6 p-4 bg-[#1a0b2e] rounded-full transform transition-transform group-hover:scale-110">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
