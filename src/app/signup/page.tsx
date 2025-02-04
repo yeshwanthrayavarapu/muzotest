@@ -1,0 +1,54 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+export default function SignUpPage() {
+  const router = useRouter();
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (data: { name: string; email: string; password: string }) => {
+    setError('');
+
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      setError(result.error || 'Something went wrong');
+      return;
+    }
+
+    router.push('/pages/signin'); // Redirect after successful signup
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12]">
+      <div className="bg-[#1e1b3b] p-8 rounded-xl shadow-xl w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center mb-8 text-cyan-400">Sign Up for MUZO</h1>
+
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const form = e.target as HTMLFormElement;
+          const name = (form.elements.namedItem('name') as HTMLInputElement).value;
+          const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+          const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+          handleSubmit({ name, email, password });
+        }} className="space-y-6">
+
+          <input name="name" type="text" placeholder="Name" className="w-full px-4 py-3 bg-[#2c284e] rounded-lg text-white" required />
+          <input name="email" type="email" placeholder="Email" className="w-full px-4 py-3 bg-[#2c284e] rounded-lg text-white" required />
+          <input name="password" type="password" placeholder="Password" className="w-full px-4 py-3 bg-[#2c284e] rounded-lg text-white" required />
+
+          <button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:opacity-90">Sign Up</button>
+        </form>
+      </div>
+    </div>
+  );
+}

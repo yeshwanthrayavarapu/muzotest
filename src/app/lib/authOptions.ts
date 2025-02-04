@@ -1,6 +1,7 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { executeQuery } from "@/app/lib/db";
+import { SessionStrategy } from "next-auth";
 
 export const authOptions = {
   providers: [
@@ -15,7 +16,6 @@ export const authOptions = {
           throw new Error("Missing email or password");
         }
 
-        // Fetch user from Azure SQL Server
         const user = await executeQuery(
           "SELECT * FROM Users WHERE email = @param0",
           [credentials.email]
@@ -37,9 +37,10 @@ export const authOptions = {
   ],
   pages: {
     signIn: "/signin",
+    signOut: "/signout",
   },
   session: {
-    strategy: 'jwt' as 'jwt',
+    strategy: "jwt" as SessionStrategy,
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
