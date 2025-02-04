@@ -1,26 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play, Download } from "lucide-react";
+import { Play, Download, Clock, Heart } from "lucide-react";
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
-
-// Define TypeScript interface for songs
-interface Song {
-  id: string;
-  title: string;
-  description: string;
-  audioUrl: string;
-  coverImage: string;
-}
+import { useAudio } from '@/contexts/AudioContext';
+import type { Track } from '@/types/music';
 
 export default function LibraryPage() {
-  const [songs, setSongs] = useState<Song[]>([]);
+  const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPlaying, setCurrentPlaying] = useState<string | null>(null);
+  const [selectedGenre, setSelectedGenre] = useState<string>('all');
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { playTrack } = useAudio();
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -28,95 +22,116 @@ export default function LibraryPage() {
     }
   }, [status, router]);
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (!session) {
-    return null;
-  }
-
   useEffect(() => {
-    const fetchSongs = async () => {
+    const fetchTracks = async () => {
       try {
         const response = await fetch("/api/songs");
-        if (!response.ok) throw new Error("Failed to fetch songs");
-        const data: Song[] = await response.json();
-        setSongs(data);
+        if (!response.ok) throw new Error("Failed to fetch tracks");
+        const data = await response.json();
+        setTracks(data);
       } catch (error) {
-        console.error("Error fetching songs:", error);
+        console.error("Error fetching tracks:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSongs();
+    fetchTracks();
   }, []);
 
-  const handlePlay = (audioUrl: string) => {
-    setCurrentPlaying(audioUrl);
-  };
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  // Fix: Use Array.from instead of Set
+  const genres = ['all', ...Array.from(new Set(tracks.map(track => track.genre)))];
+  
+  const filteredTracks = selectedGenre === 'all' 
+    ? tracks 
+    : tracks.filter(track => track.genre === selectedGenre);
 
   return (
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64">
-        <div className="max-w-4xl mx-auto px-6 py-12">
-          <h1 className="text-3xl font-bold mb-8 text-cyan-400">Library</h1>
-
-          {loading ? (
-            <p className="text-gray-400">Loading songs...</p>
-          ) : songs.length === 0 ? (
-            <p className="text-gray-400">No songs found.</p>
-          ) : (
-            <div className="space-y-6">
-              {songs.map((song) => (
-                <div
-                  key={song.id}
-                  className="flex items-center bg-[#1e1b3b] p-4 rounded-lg hover:bg-[#2a264d] transition-colors"
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                Your Library
+              </span>
+            </h1>
+            
+            <div className="flex gap-4">
+              {genres.map((genre) => (
+                <button
+                  key={genre}
+                  onClick={() => setSelectedGenre(genre)}
+                  className={`px-4 py-2 rounded-full text-sm transition-colors ${
+                    selectedGenre === genre
+                      ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-black'
+                      : 'bg-[#1e1b3b] text-white hover:bg-[#2a264d]'
+                  }`}
                 >
-                  {/* Song Cover Image */}
-                  <img
-                    src={song.coverImage}
-                    alt={song.title}
-                    className="w-16 h-16 object-cover rounded-lg mr-4"
-                  />
+                  {genre.charAt(0).toUpperCase() + genre.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                  {/* Song Details */}
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold">{song.title}</h3>
-                    <p className="text-gray-400 text-sm">{song.description}</p>
-                    {/* Audio Player */}
-                    <audio
-                      controls
-                      src={song.audioUrl}
-                      className="mt-2 w-full"
-                      onPlay={() => handlePlay(song.audioUrl)}
+          <div className="grid gap-4">
+            {filteredTracks.map((track) => (
+              <div
+                key={track.id}
+                className="bg-[#1e1b3b] rounded-xl overflow-hidden hover:bg-[#2a264d] transition-colors group"
+              >
+                <div className="flex items-center p-4">
+                  <div 
+                    className="relative w-16 h-16 mr-4 rounded-lg overflow-hidden group-hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => playTrack(track)}
+                  >
+                    <img
+                      src={track.coverUrl}
+                      alt={track.title}
+                      className="w-full h-full object-cover"
                     />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Play size={24} className="text-white" />
+                    </div>
                   </div>
 
-                  {/* Buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      className="p-2 rounded-full bg-cyan-400 hover:bg-cyan-500 transition-colors"
-                      aria-label="Play"
-                      onClick={() => handlePlay(song.audioUrl)}
-                    >
-                      <Play size={18} />
-                    </button>
+                  <div className="flex-grow">
+                    <h3 className="text-xl font-semibold mb-1">{track.title}</h3>
+                    <p className="text-gray-400 text-sm">{track.description}</p>
+                    <p className="text-cyan-400 text-sm mt-1">{track.artist}</p>
+                  </div>
+
+                  <div className="flex items-center gap-8 text-gray-400">
+                    <div className="flex items-center gap-2">
+                      <Clock size={16} />
+                      <span>{track.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Play size={16} />
+                      <span>{track.plays}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Heart size={16} />
+                      <span>{track.likes}</span>
+                    </div>
                     <a
-                      href={song.audioUrl}
+                      href={track.audioUrl}
                       download
-                      className="p-2 rounded-full bg-cyan-400 hover:bg-cyan-500 transition-colors"
+                      className="p-2 rounded-full bg-[#2c284e] hover:bg-cyan-400 hover:text-black transition-colors"
                       aria-label="Download"
                     >
                       <Download size={18} />
                     </a>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
