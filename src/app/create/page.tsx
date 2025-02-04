@@ -4,12 +4,32 @@ import React, { useState } from 'react';
 import { Send } from 'lucide-react';
 import { AudioInput } from '@/components/AudioInput';
 import type { CreateTrackInput } from '@/types/music';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function CreatePage() {
   const [prompt, setPrompt] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push('/signin');
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (!session) {
+    return null;
+  }
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

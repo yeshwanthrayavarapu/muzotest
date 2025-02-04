@@ -23,7 +23,7 @@ export default function SignUpPage() {
       return;
     }
 
-    router.push('/pages/signin'); // Redirect after successful signup
+    router.push('/signin'); // Redirect after successful signup
   };
 
   return (

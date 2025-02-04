@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Play, Download } from "lucide-react";
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+
 
 // Define TypeScript interface for songs
 interface Song {
@@ -16,6 +19,22 @@ export default function LibraryPage() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPlaying, setCurrentPlaying] = useState<string | null>(null);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push('/signin');
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (!session) {
+    return null;
+  }
 
   useEffect(() => {
     const fetchSongs = async () => {
