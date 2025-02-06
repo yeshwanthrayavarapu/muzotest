@@ -2,8 +2,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { executeQuery } from "@/app/lib/db";
 import { SessionStrategy } from "next-auth";
+import { SQLServerAdapter } from "@/app/lib/auth/adapter";
 
 export const authOptions = {
+  adapter: SQLServerAdapter(),
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -31,7 +33,7 @@ export const authOptions = {
           throw new Error("Invalid password");
         }
 
-        return { id: user[0].id, name: user[0].name, email: user[0].email };
+        return { id: user[0].id, name: user[0].name, email: user[0].email, password: user[0].password };
       },
     }),
   ],
@@ -41,6 +43,20 @@ export const authOptions = {
   },
   session: {
     strategy: "jwt" as SessionStrategy,
+  },
+  callbacks: {
+    async session({ session, token }: { session: any, token: any }) {
+      if (session?.user) {
+        session.user.id = token.id
+      }
+      return session
+    },
+    async jwt({ token, user }: { token: any, user: any }) {
+      if (user) {
+        token.id = user.id
+      }
+      return token
+    }
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

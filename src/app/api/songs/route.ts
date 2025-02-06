@@ -1,32 +1,38 @@
-import { NextResponse } from "next/server";
-const sql = require('mssql'); // Use CommonJS import
-import "dotenv/config"; // Ensures environment variables are loaded
+const sql = require('mssql'); 
+import { NextResponse } from 'next/server'; 
 import type { Track } from '@/types/music';
+import "dotenv/config"; 
 
-
+// Move config to environment variables
 const config = {
-    user: "muzo", // Username for SQL Server
-    password: "taszyq-jiwZen-fakcy2", // Password for SQL Server
-    server: 'muzodb.database.windows.net', // SQL Server Host
-    database: 'muzo', // Database Name
-    port: Number(1433) , // Default SQL Server port
-    options: {
-        encrypt: true, // Required for Azure SQL
-        trustServerCertificate: false, // Set to true if using a self-signed cert
-    },
+  user: process.env.DB_USER || "muzo",
+  password: process.env.DB_PASSWORD || "taszyq-jiwZen-fakcy2",
+  server: process.env.DB_SERVER || 'muzodb.database.windows.net',
+  database: process.env.DB_NAME || 'muzo',
+  port: Number(process.env.DB_PORT || 1433),
+  options: {
+    encrypt: true,
+    trustServerCertificate: false,
+  },
 };
 
+// Optimize SQL query and add connection pooling
+const sqlPool = new sql.ConnectionPool(config);
+const poolConnect = sqlPool.connect();
 
-// GET request handler to fetch songs
-async function getSongs() {
-    try {
-      await sql.connect(config);
-      const result = await sql.query("SELECT id,title,description,genre,duration,plays,likes,artist,coverUrl,audioUrl FROM Songs");
-      return NextResponse.json(result.recordset);
-    } catch (error) {
-      console.error("Database Connection Error:", error);
-      return new NextResponse("Error fetching songs", { status: 500 });
-    }
+export async function GET() {
+  try {
+    await poolConnect; // Ensure pool is connected
+    const result = await sqlPool.request()
+      .query(`
+        SELECT id, title, description, genre, duration, 
+               plays, likes, artist, coverUrl, audioUrl 
+        FROM Songs
+      `);
+      
+    return NextResponse.json(result.recordset);
+  } catch (error) {
+    console.error("Database Error:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
-  
-  module.exports = { GET: getSongs };
+}
