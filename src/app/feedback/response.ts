@@ -31,9 +31,8 @@ export class SurveyResponse {
 
   fromJSON(json: string): SurveyResponse {
     let obj = JSON.parse(json);
-    for (let key in obj) {
-      this.questionResponses[key] = obj[key];
-    }
+    this.time = new Date(obj.time);
+    this.questionResponses = obj.questionResponses;
     return this;
   }
 

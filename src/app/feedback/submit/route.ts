@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       });
 
     if (!submission.time) return error("Invalid submission time");
-    if (!submission.missingNonOptionalQuestions().length) return error("Please answer all required questions");
+    if (submission.missingNonOptionalQuestions().length !== 0) return error("Please answer all required questions");
 
     // TODO: Store the submission
     console.log(submission);
