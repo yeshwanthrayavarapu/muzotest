@@ -1,11 +1,11 @@
 import { QuestionData } from "../types";
 import { SurveyResponse } from "../response";
-import { QUESTIONS } from "../questions";
 import Feild from "./Field";
 
 interface Props {
   number: number;
   question: QuestionData;
+  hidden: boolean;
   response: SurveyResponse;
   rerenderAction: () => void;
   unansweredQuestionWarnings: string[];
@@ -15,11 +15,10 @@ export default function Question({
   question,
   response,
   number,
+  hidden,
   rerenderAction,
   unansweredQuestionWarnings,
 }: Props) {
-  const hidden = response.isHidden(question);
-
   const optional = !question.optional || (
     <span className="text-xs m-3">(optional)</span>
   );

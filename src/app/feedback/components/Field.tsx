@@ -16,11 +16,6 @@ export default function Feild(
     rerender();
   };
 
-  const setInitialResponse = (r: QuestionResponse) => {
-    if (response.currentResponse(question)) return;
-    response.addQuestionReponse(question, r);
-  };
-
   switch (question.type) {
     case QuestionType.Text: {
       return <textarea 
@@ -29,13 +24,10 @@ export default function Feild(
       />;
     }
     case QuestionType.Number: {
-      setInitialResponse(1);
       return <Stars setStarsAction={(n) => changeResponse(n)} />;
     }
     case QuestionType.Select: {
       let options = question.options ?? ["No", "Yes"];
-
-      setInitialResponse(options[0]);
 
       return (
         <select 
