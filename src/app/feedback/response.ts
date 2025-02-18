@@ -27,7 +27,7 @@ export class SurveyResponse {
     return questionList
       .filter((q) => !q.optional && !this.isHidden(q, questionList))
       .map((q) => q.description)
-      .filter((d) => this.questionResponses[d] === undefined);
+      .filter((d) => this.questionResponses[d] === undefined || this.questionResponses[d] === "");
   }
 
   isHidden(question: QuestionData, questionList: QuestionData[]): boolean {
