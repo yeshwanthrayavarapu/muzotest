@@ -1,24 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { BlobServiceClient } from '@azure/storage-blob';
-const sql = require('mssql'); 
-import "dotenv/config";
+import { executeQuery } from '@/app/lib/db';
 
 const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING || '');
-
-const config = {
-  user: process.env.DB_USER || "muzo",
-  password: process.env.DB_PASSWORD || "taszyq-jiwZen-fakcy2",
-  server: process.env.DB_SERVER || 'muzodb.database.windows.net',
-  database: process.env.DB_NAME || 'muzo',
-  port: Number(process.env.DB_PORT || 1433),
-  options: {
-    encrypt: true,
-    trustServerCertificate: false,
-  },
-};
-
-const sqlPool = new sql.ConnectionPool(config);
-const poolConnect = sqlPool.connect();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -41,14 +25,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const audioUrl = blockBlobClient.url;
 
-    await poolConnect;
-    await sqlPool.request()
-      .input('title', sql.NVarChar, prompt)
-      .input('audioUrl', sql.NVarChar, audioUrl)
-      .query(`
+    await executeQuery(`
         INSERT INTO Songs (title, audioUrl)
         VALUES (@title, @audioUrl)
-      `);
+      `,
+      [
+        {
+          name: 'title',
+          value: prompt,
+          type: sql.NVarChar
+        },
+        {
+          name: 'audioUrl',
+          value: audioUrl,
+          type: sql.NVarChar
+        }, audioUrl
+      ]);
 
     res.status(200).json({ message: 'Song uploaded successfully', audioUrl });
   } catch (error) {
