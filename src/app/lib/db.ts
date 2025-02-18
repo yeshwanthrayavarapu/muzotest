@@ -19,17 +19,17 @@ const poolConnect = sqlPool.connect();
 export type QueryParam = string | { value: any, type: sql.ISqlType, name: string };
 
 // Create a function to handle the database connection and queries
-export async function executeQuery(query: string, params: any[] = []) {
+export async function executeQuery(query: string, params: QueryParam[] = []) {
   try {
     await poolConnect; // Ensure pool is connected
 
     const request = sqlPool.request();
 
     params.forEach((param, index) => {
-      const paramName = param.name ?? `param${index}`;
+      const paramName = `param${index}`;
 
       if (typeof param === "object") {
-        request.input(paramName, param.type, param.value);
+        request.input(param.name ?? paramName, param.type, param.value);
       } else {
         request.input(paramName, param);
       }
