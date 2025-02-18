@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useRef } from 'react';
+import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 
 interface AudioContextType {
   currentTrack: Track | null;
@@ -49,6 +49,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const isRepeatingRef = useRef(isRepeating);
+  useEffect(() => {
+    isRepeatingRef.current = isRepeating;
+  }, [isRepeating]);
+
   const playTrack = (track: Track) => {
     if (!audioRef?.current || audioRef.current.src !== track.audioUrl) {
       destroyAudio();
@@ -62,10 +67,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
       const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
       const handleDurationChange = () => setDuration(audio.duration);
+
       const handleEnded = () => {
         setIsPlaying(false);
-        if (isRepeating && currentTrack) {
-          playTrack(currentTrack);
+        if (isRepeatingRef.current) {
+          playTrack(track);
         }
       };
 
