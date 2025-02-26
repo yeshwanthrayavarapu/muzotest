@@ -124,7 +124,7 @@ export function MusicPlayer() {
 
             {/* Progress Bar */}
             <div className="w-full mt-2 flex items-center space-x-2 text-xs text-gray-400">
-              <span>{formatTime(currentTime)}</span>
+              <span className="w-[1.6rem]">{formatTime(currentTime)}</span>
               <div
                 ref={progressRef}
                 className="flex-1 h-1 bg-gray-700 rounded-full cursor-pointer"
