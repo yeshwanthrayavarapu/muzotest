@@ -119,9 +119,25 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     playTrack(playlist.current[position]);
   };
 
+  const playRandomTrack = () => {
+    if (playlist.current.length < 2) return;
+    const randomIndex = Math.floor(Math.random() * playlist.current.length);
+    
+    // Try again if the random track is the current track
+    const currentIndex = !currentTrack ? -1 : playlist.current.indexOf(currentTrack);
+    if (randomIndex === currentIndex) return playRandomTrack();
+
+    playTrack(playlist.current[randomIndex]);
+  };
+
   const toggleShuffle = () => setIsShuffling(!isShuffling);
   const toggleRepeat = () => setIsRepeating(!isRepeating);
-  const playNext = () => offsetCurrentTrack(1);
+
+  const playNext = () => {
+    if (isShuffling) return playRandomTrack();
+    offsetCurrentTrack(1)
+  };
+
   const playPrevious = () => offsetCurrentTrack(-1);
 
   const value = {
