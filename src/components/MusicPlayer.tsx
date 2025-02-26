@@ -27,7 +27,9 @@ export function MusicPlayer() {
     setVolume,
     seekTo,
     toggleShuffle,
+    isShuffling,
     toggleRepeat,
+    isRepeating,
     playNext,
     playPrevious,
   } = useAudio();
@@ -92,7 +94,7 @@ export function MusicPlayer() {
             <div className="flex items-center space-x-6">
               <button
                 onClick={toggleShuffle}
-                className="text-gray-400 hover:text-cyan-400 transition-colors"
+                className={`${isShuffling ? "text-cyan-400" : "text-gray-400"} hover:text-cyan-400 transition-colors`}
               >
                 <Shuffle size={20} />
               </button>
@@ -116,7 +118,7 @@ export function MusicPlayer() {
               </button>
               <button
                 onClick={toggleRepeat}
-                className="text-gray-400 hover:text-cyan-400 transition-colors"
+                className={`${isRepeating ? "text-cyan-400" : "text-gray-400"} hover:text-cyan-400 transition-colors`}
               >
                 <Repeat size={20} />
               </button>
