@@ -14,7 +14,9 @@ interface AudioContextType {
   setVolume: (volume: number) => void;
   seekTo: (time: number) => void;
   toggleShuffle: () => void;
+  isShuffling: boolean;
   toggleRepeat: () => void;
+  isRepeating: boolean;
   playNext: () => void;
   playPrevious: () => void;
 }
@@ -122,7 +124,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setVolume: handleVolumeChange,
     seekTo,
     toggleShuffle,
+    isShuffling,
     toggleRepeat,
+    isRepeating,
     playNext,
     playPrevious,
   };
