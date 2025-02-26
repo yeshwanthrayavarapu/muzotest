@@ -59,11 +59,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       destroyAudio();
 
       audioRef.current = new Audio();
-      audioRef.current.src = track.audioUrl;
-      audioRef.current.volume = volume;
-      audioRef.current.preload = "auto";
-
       const audio = audioRef.current;
+
+      audio.src = track.audioUrl;
+      audio.volume = volume;
+      audio.preload = "auto";
 
       const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
       const handleDurationChange = () => setDuration(audio.duration);
