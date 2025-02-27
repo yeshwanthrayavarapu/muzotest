@@ -87,7 +87,7 @@ export default function LibraryPage() {
               >
                 <div className="flex items-center p-4">
                   <div 
-                    className="relative w-16 h-16 mr-4 rounded-lg overflow-hidden group-hover:shadow-lg transition-shadow cursor-pointer"
+                    className="relative w-16 min-w-16 h-16 mr-4 rounded-lg overflow-hidden group-hover:shadow-lg transition-shadow cursor-pointer"
                     onClick={() => playTrack(track)}
                   >
                     <img
