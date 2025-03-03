@@ -3,9 +3,10 @@ import { Upload, Mic } from 'lucide-react';
 
 interface AudioInputProps {
   onAudioCapture: (file: File) => void;
+  disabled?: boolean;
 }
 
-export function AudioInput({ onAudioCapture }: AudioInputProps) {
+export function AudioInput({ onAudioCapture, disabled = false }: AudioInputProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingStatus, setRecordingStatus] = useState('');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -62,11 +63,13 @@ export function AudioInput({ onAudioCapture }: AudioInputProps) {
           className="hidden"
           id="audio-upload"
           onChange={handleFileUpload}
+          disabled={disabled}
         />
         <button
           type="button"
           onClick={() => document.getElementById('audio-upload')?.click()}
-          className="flex items-center gap-2 px-4 py-2 bg-[#3b3159] hover:bg-cyan-400 transition-colors rounded-lg text-white"
+          className={`flex items-center gap-2 px-4 py-2 ${disabled ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#3b3159] hover:bg-cyan-400'} transition-colors rounded-lg text-white`}
+          disabled={disabled}
         >
           <Upload size={20} />
           Choose Audio
