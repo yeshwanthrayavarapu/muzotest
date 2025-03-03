@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 
 interface AudioContextType {
   currentTrack: Track | null;
+  playlist: Track[],
   isPlaying: boolean;
   volume: number;
   currentTime: number;
@@ -32,6 +33,7 @@ const AudioContext = createContext<AudioContextType | null>(null);
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const playlist = useRef<Track[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
@@ -105,13 +107,42 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const offsetCurrentTrack = (amount: number) => {
+    if (!currentTrack) return;
+
+    let position = playlist.current.indexOf(currentTrack);
+    if (position === -1) return;
+
+    position += amount;
+    position = Math.max(0, Math.min(playlist.current.length - 1, position));
+    
+    playTrack(playlist.current[position]);
+  };
+
+  const playRandomTrack = () => {
+    if (playlist.current.length < 2) return;
+    const randomIndex = Math.floor(Math.random() * playlist.current.length);
+    
+    // Try again if the random track is the current track
+    const currentIndex = !currentTrack ? -1 : playlist.current.indexOf(currentTrack);
+    if (randomIndex === currentIndex) return playRandomTrack();
+
+    playTrack(playlist.current[randomIndex]);
+  };
+
   const toggleShuffle = () => setIsShuffling(!isShuffling);
   const toggleRepeat = () => setIsRepeating(!isRepeating);
-  const playNext = () => console.log('Next track');
-  const playPrevious = () => console.log('Previous track');
+
+  const playNext = () => {
+    if (isShuffling) return playRandomTrack();
+    offsetCurrentTrack(1)
+  };
+
+  const playPrevious = () => offsetCurrentTrack(-1);
 
   const value = {
     currentTrack,
+    playlist: playlist.current,
     isPlaying,
     volume,
     currentTime,

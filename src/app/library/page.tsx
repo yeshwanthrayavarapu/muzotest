@@ -14,7 +14,7 @@ export default function LibraryPage() {
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { playTrack } = useAudio();
+  const { playTrack, playlist } = useAudio();
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -38,6 +38,11 @@ export default function LibraryPage() {
 
     fetchTracks();
   }, []);
+
+  // Replace the playlist with the fetched tracks
+  useEffect(() => {
+    playlist.splice(0, playlist.length, ...tracks);
+  }, [tracks]);
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
