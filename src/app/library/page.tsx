@@ -23,6 +23,14 @@ export default function LibraryPage() {
   }, [status, router]);
 
   useEffect(() => {
+    // Generate random cover images for mock tracks
+    const generateRandomCover = () => {
+      const id = Math.floor(Math.random() * 1000);
+      return `https://picsum.photos/seed/${id}/300/300`;
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchTracks = async () => {
       try {
         const response = await fetch("/api/songs");
