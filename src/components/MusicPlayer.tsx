@@ -27,7 +27,9 @@ export function MusicPlayer() {
     setVolume,
     seekTo,
     toggleShuffle,
+    isShuffling,
     toggleRepeat,
+    isRepeating,
     playNext,
     playPrevious,
   } = useAudio();
@@ -49,7 +51,7 @@ export function MusicPlayer() {
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!progressRef.current) return;
-    
+
     const rect = progressRef.current.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
     seekTo(percent * duration);
@@ -67,7 +69,7 @@ export function MusicPlayer() {
     <div
       className={`fixed bottom-0 left-0 right-0 bg-[#1e1b3b] border-t border-gray-800 transition-all duration-300 ${
         isExpanded ? 'h-96' : 'h-20'
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 h-full">
         {/* Main Player Controls */}
@@ -92,7 +94,7 @@ export function MusicPlayer() {
             <div className="flex items-center space-x-6">
               <button
                 onClick={toggleShuffle}
-                className="text-gray-400 hover:text-cyan-400 transition-colors"
+                className={`${isShuffling ? "text-cyan-400" : "text-gray-400"} hover:text-cyan-400 transition-colors`}
               >
                 <Shuffle size={20} />
               </button>
@@ -116,29 +118,41 @@ export function MusicPlayer() {
               </button>
               <button
                 onClick={toggleRepeat}
-                className="text-gray-400 hover:text-cyan-400 transition-colors"
+                className={`${isRepeating ? "text-cyan-400" : "text-gray-400"} hover:text-cyan-400 transition-colors`}
               >
                 <Repeat size={20} />
               </button>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full mt-2 flex items-center space-x-2 text-xs text-gray-400">
-              <span>{formatTime(currentTime)}</span>
-              <div
-                ref={progressRef}
-                className="flex-1 h-1 bg-gray-700 rounded-full cursor-pointer"
-                onClick={handleProgressClick}
-              >
-                <div
-                  className="h-full bg-cyan-400 rounded-full relative"
-                  style={{ width: `${(currentTime / duration) * 100}%` }}
-                >
-                  <div className="absolute right-0 top-1/2 transform translate-y-[-50%] translate-x-1/2] w-3 h-3 bg-white rounded-full shadow-lg"></div>
+            {!duration
+              // Loading state
+              ? <div className="w-full mt-2 flex items-center space-x-2 text-xs text-gray-400 bg-gray-700 h-1 rounded-full animate-pulse"></div>
+              // Playing state
+              : (
+                <div className="w-full mt-2 flex items-center space-x-2 text-xs text-gray-400">
+                  <span className="w-[1.6rem]">{formatTime(currentTime)}</span>
+                  <div
+                    ref={progressRef}
+                    className="flex-1 h-1 bg-gray-700 rounded-full cursor-pointer"
+                    onClick={handleProgressClick}
+                  >
+                    <div
+                      className="h-full bg-cyan-400 rounded-full relative"
+                      style={{ width: `${(currentTime / duration) * 100}%` }}
+                    >
+                    </div>
+                    <div
+                      className="h-full relative mx-[0.365rem] transform translate-y-[-100%]"
+                      style={{ width: `${(currentTime / duration) * 100}%` }}
+                    >
+                      <div className="absolute right-0 top-1/2 transform translate-y-[-50%] translate-x-[0.73rem]] w-3 h-3 bg-white rounded-full shadow-lg"></div>
+                    </div>
+                  </div>
+                  <span>{formatTime(duration)}</span>
                 </div>
-              </div>
-              <span>{formatTime(duration)}</span>
-            </div>
+              )
+            }
           </div>
 
           {/* Volume and Expand Controls */}

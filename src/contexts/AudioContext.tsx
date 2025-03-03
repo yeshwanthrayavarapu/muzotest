@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 
 interface AudioContextType {
   currentTrack: Track | null;
+  playlist: Track[],
   isPlaying: boolean;
   volume: number;
   currentTime: number;
@@ -14,7 +15,9 @@ interface AudioContextType {
   setVolume: (volume: number) => void;
   seekTo: (time: number) => void;
   toggleShuffle: () => void;
+  isShuffling: boolean;
   toggleRepeat: () => void;
+  isRepeating: boolean;
   playNext: () => void;
   playPrevious: () => void;
 }
@@ -32,49 +35,58 @@ const AudioContext = createContext<AudioContextType | null>(null);
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const playlist = useRef<Track[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isShuffling, setIsShuffling] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
-  
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const destroyAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+      audioRef.current = null;
+    }
+  };
+
+  const isRepeatingRef = useRef(isRepeating);
   useEffect(() => {
-    audioRef.current = new Audio();
-    audioRef.current.volume = volume;
-
-    const audio = audioRef.current;
-    
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleDurationChange = () => setDuration(audio.duration);
-    const handleEnded = () => {
-      setIsPlaying(false);
-      if (isRepeating && currentTrack) {
-        playTrack(currentTrack);
-      }
-    };
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('durationchange', handleDurationChange);
-    audio.addEventListener('ended', handleEnded);
-
-    return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('durationchange', handleDurationChange);
-      audio.removeEventListener('ended', handleEnded);
-      audio.pause();
-    };
-  }, [isRepeating, currentTrack]);
+    isRepeatingRef.current = isRepeating;
+  }, [isRepeating]);
 
   const playTrack = (track: Track) => {
-    if (audioRef.current) {
-      audioRef.current.src = track.audioUrl;
-      audioRef.current.play();
-      setCurrentTrack(track);
-      setIsPlaying(true);
+    if (!audioRef?.current || audioRef.current.src !== track.audioUrl) {
+      destroyAudio();
+
+      audioRef.current = new Audio();
+      const audio = audioRef.current;
+
+      audio.src = track.audioUrl;
+      audio.volume = volume;
+      audio.preload = "auto";
+
+      const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+      const handleDurationChange = () => setDuration(audio.duration);
+
+      const handleEnded = () => {
+        setIsPlaying(false);
+        if (isRepeatingRef.current) {
+          playTrack(track);
+        }
+      };
+
+      audio.addEventListener('timeupdate', handleTimeUpdate);
+      audio.addEventListener('durationchange', handleDurationChange);
+      audio.addEventListener('ended', handleEnded);
     }
+
+    audioRef.current.play();
+    setCurrentTrack(track);
+    setIsPlaying(true);
   };
 
   const pauseTrack = () => {
@@ -105,13 +117,42 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const offsetCurrentTrack = (amount: number) => {
+    if (!currentTrack) return;
+
+    let position = playlist.current.indexOf(currentTrack);
+    if (position === -1) return;
+
+    position += amount;
+    position = Math.max(0, Math.min(playlist.current.length - 1, position));
+    
+    playTrack(playlist.current[position]);
+  };
+
+  const playRandomTrack = () => {
+    if (playlist.current.length < 2) return;
+    const randomIndex = Math.floor(Math.random() * playlist.current.length);
+    
+    // Try again if the random track is the current track
+    const currentIndex = !currentTrack ? -1 : playlist.current.indexOf(currentTrack);
+    if (randomIndex === currentIndex) return playRandomTrack();
+
+    playTrack(playlist.current[randomIndex]);
+  };
+
   const toggleShuffle = () => setIsShuffling(!isShuffling);
   const toggleRepeat = () => setIsRepeating(!isRepeating);
-  const playNext = () => console.log('Next track');
-  const playPrevious = () => console.log('Previous track');
+
+  const playNext = () => {
+    if (isShuffling) return playRandomTrack();
+    offsetCurrentTrack(1)
+  };
+
+  const playPrevious = () => offsetCurrentTrack(-1);
 
   const value = {
     currentTrack,
+    playlist: playlist.current,
     isPlaying,
     volume,
     currentTime,
@@ -122,7 +163,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setVolume: handleVolumeChange,
     seekTo,
     toggleShuffle,
+    isShuffling,
     toggleRepeat,
+    isRepeating,
     playNext,
     playPrevious,
   };
