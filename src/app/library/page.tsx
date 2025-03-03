@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
 import { useAudio } from '@/contexts/AudioContext';
+import { AuthGuard } from '@/components/AuthGuard';``
 import type { Track } from '@/types/music';
 
 export default function LibraryPage() {
@@ -15,12 +16,6 @@ export default function LibraryPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { playTrack, playlist } = useAudio();
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push('/signin');
-    }
-  }, [status, router]);
 
   useEffect(() => {
     // Generate random cover images for mock tracks
@@ -64,6 +59,7 @@ export default function LibraryPage() {
     : tracks.filter(track => track.genre === selectedGenre);
 
   return (
+    <AuthGuard>
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64">
@@ -148,5 +144,6 @@ export default function LibraryPage() {
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

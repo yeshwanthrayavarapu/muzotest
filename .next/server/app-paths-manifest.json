@@ -1,6 +1,9 @@
 {
-  "/create/page": "app/create/page.js",
-  "/library/page": "app/library/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/create/page": "app/create/page.js",
+  "/signin/page": "app/signin/page.js",
+  "/page": "app/page.js",
+  "/library/page": "app/library/page.js",
   "/api/songs/route": "app/api/songs/route.js"
 }

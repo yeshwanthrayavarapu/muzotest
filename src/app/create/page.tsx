@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
+import { AuthGuard } from '@/components/AuthGuard';
 
 export default function CreatePage() {
   const [prompt, setPrompt] = useState('');
@@ -17,19 +18,6 @@ export default function CreatePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push('/signin');
-    }
-  }, [status, router]);
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (!session) {
-    return null;
-  }
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,6 +61,7 @@ export default function CreatePage() {
   };
 
   return (
+    <AuthGuard>
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64">
@@ -116,5 +105,6 @@ export default function CreatePage() {
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

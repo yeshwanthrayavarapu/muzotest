@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@azure/identity": "^4.6.0",

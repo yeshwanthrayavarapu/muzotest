@@ -30,7 +30,7 @@ export function SQLServerAdapter(): Adapter {
     async updateUser(user: Partial<AdapterUser> & Pick<AdapterUser, "id">): Promise<AdapterUser> {
       const result = await executeQuery(
         "UPDATE Users SET name = @param0, email = @param1 WHERE id = @param2",
-        [user.name, user.email, user.id]
+        [user.name ?? '', user.email ?? '', user.id]
       )
       if (!this.getUser) {
         throw new Error("getUser method is not defined")
