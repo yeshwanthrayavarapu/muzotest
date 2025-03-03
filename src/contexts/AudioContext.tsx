@@ -42,43 +42,51 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [duration, setDuration] = useState(0);
   const [isShuffling, setIsShuffling] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
-  
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const destroyAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+      audioRef.current = null;
+    }
+  };
+
+  const isRepeatingRef = useRef(isRepeating);
   useEffect(() => {
-    audioRef.current = new Audio();
-    audioRef.current.volume = volume;
-
-    const audio = audioRef.current;
-    
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleDurationChange = () => setDuration(audio.duration);
-    const handleEnded = () => {
-      setIsPlaying(false);
-      if (isRepeating && currentTrack) {
-        playTrack(currentTrack);
-      }
-    };
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('durationchange', handleDurationChange);
-    audio.addEventListener('ended', handleEnded);
-
-    return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('durationchange', handleDurationChange);
-      audio.removeEventListener('ended', handleEnded);
-      audio.pause();
-    };
-  }, [isRepeating, currentTrack]);
+    isRepeatingRef.current = isRepeating;
+  }, [isRepeating]);
 
   const playTrack = (track: Track) => {
-    if (audioRef.current) {
-      audioRef.current.src = track.audioUrl;
-      audioRef.current.play();
-      setCurrentTrack(track);
-      setIsPlaying(true);
+    if (!audioRef?.current || audioRef.current.src !== track.audioUrl) {
+      destroyAudio();
+
+      audioRef.current = new Audio();
+      const audio = audioRef.current;
+
+      audio.src = track.audioUrl;
+      audio.volume = volume;
+      audio.preload = "auto";
+
+      const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+      const handleDurationChange = () => setDuration(audio.duration);
+
+      const handleEnded = () => {
+        setIsPlaying(false);
+        if (isRepeatingRef.current) {
+          playTrack(track);
+        }
+      };
+
+      audio.addEventListener('timeupdate', handleTimeUpdate);
+      audio.addEventListener('durationchange', handleDurationChange);
+      audio.addEventListener('ended', handleEnded);
     }
+
+    audioRef.current.play();
+    setCurrentTrack(track);
+    setIsPlaying(true);
   };
 
   const pauseTrack = () => {
