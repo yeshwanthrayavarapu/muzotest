@@ -15,6 +15,7 @@ import {
   Heart,
 } from 'lucide-react';
 import { useAudio } from '@/contexts/AudioContext';
+import CoverArt from './CoverArt';
 
 export function MusicPlayer() {
   const {
@@ -82,7 +83,7 @@ export function MusicPlayer() {
   return (
     <div
       className={`fixed bottom-0 left-0 right-0 bg-[#1e1b3b] border-t border-gray-800 transition-all duration-300 ${
-        isExpanded ? 'h-96' : 'h-20'
+        isExpanded ? 'h-fit' : 'h-20'
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 h-full">
@@ -90,12 +91,8 @@ export function MusicPlayer() {
         <div className="flex items-center justify-between h-20">
           {/* Track Info */}
           <div className="flex items-center space-x-4">
-            <div className="relative w-12 h-12">
-              <img
-                src={currentTrack.coverUrl}
-                alt={currentTrack.title}
-                className="rounded-md object-cover"
-              />
+            <div className="relative">
+              <CoverArt track={currentTrack} height="3rem" />
             </div>
             <div>
               <h3 className="text-white font-medium">{currentTrack.title}</h3>
@@ -199,14 +196,10 @@ export function MusicPlayer() {
 
         {/* Expanded View */}
         {isExpanded && (
-          <div className="h-[calc(100%-5rem)] p-6 flex items-center justify-center">
+          <div className="h-[calc(100%-1rem)] p-6 flex items-center justify-center">
             <div className="text-center">
-              <div className="relative w-64 h-64 mx-auto mb-6">
-                <img
-                  src={currentTrack.coverUrl}
-                  alt={currentTrack.title}
-                  className="rounded-lg object-cover shadow-2xl"
-                />
+              <div className="relative mx-auto mb-6 w-48">
+                <CoverArt track={currentTrack} height="12rem" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">{currentTrack.title}</h2>
               <p className="text-gray-400 mb-6">{currentTrack.artist}</p>
