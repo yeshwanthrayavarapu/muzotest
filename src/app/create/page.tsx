@@ -128,6 +128,28 @@ export default function CreatePage() {
     setPrompt(prompt);
   };
 
+  const submit = (
+    <div>
+      <button
+        type="submit"
+        disabled={isLoading || !prompt.trim()}
+        className="blue-button w-full"
+      >
+        {isLoading ? (
+          <>
+            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+            <span className="ml-2">Creating Your Track...</span>
+          </>
+        ) : (
+          <>
+            <Zap size={18} />
+            <span>Generate Track</span>
+          </>
+        )}
+      </button>
+    </div>
+  );
+
   return (
     <AuthGuard>
         <Sidebar />
@@ -232,25 +254,7 @@ export default function CreatePage() {
                             </div>
                           )}
                           
-                          <div>
-                            <button
-                              type="submit"
-                              disabled={isLoading || !prompt.trim()}
-                              className="w-full bg-gradient-to-r from-cyan-400 to-blue-700 text-white font-medium py-3.5 px-6 rounded-lg hover:from-cyan-500 hover:to-blue-600 hover:brightness-110 transition-all flex items-center justify-center gap-2 disabled:opacity-90 disabled:cursor-not-allowed shadow-lg"
-                            >
-                              {isLoading ? (
-                                <>
-                                  <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-                                  <span className="ml-2">Creating Your Track...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Zap size={18} />
-                                  <span>Generate Track</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
+                          {submit}
                         </form>
                       </div>
                     </div>

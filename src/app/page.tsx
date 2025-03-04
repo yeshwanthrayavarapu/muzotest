@@ -9,7 +9,7 @@ export default function HomePage() {
         <div className="max-w-xl">
           <h1 className="text-5xl font-bold leading-tight">
             Experience the Future of{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+            <span className="gradient-text">
               Music
             </span>{' '}
             with AI
@@ -20,7 +20,7 @@ export default function HomePage() {
           <div className="mt-8">
             <Link
               href="/create"
-              className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-semibold rounded-md hover:opacity-90 transition-opacity"
+              className="blue-button !text-black w-48"
             >
               Get Started →
             </Link>

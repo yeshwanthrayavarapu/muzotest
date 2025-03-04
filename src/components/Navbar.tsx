@@ -10,8 +10,8 @@ export function Navbar() {
   return (
     <nav className="w-full px-12 py-5 flex justify-between items-center bg-transparent backdrop-blur-sm">
       <Link href="/" className="text-2xl font-bold flex items-center gap-2">
-        <Music className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500" />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+        <Music className="gradient-text" />
+        <span className="gradient-text">
           MUZO
         </span>
       </Link>
@@ -48,7 +48,7 @@ export function Navbar() {
               </Link>
               <Link 
                 href="/signup" 
-                className="px-5 py-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-black rounded-md hover:opacity-90 transition-opacity"
+                className="px-5 py-2 gradient-background text-black rounded-md hover:opacity-90 transition-opacity"
               >
                 Sign Up
               </Link>
