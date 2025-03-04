@@ -42,7 +42,7 @@ export default function HomePage() {
       {/* Features Section */}
       <div className="py-20 px-12">
         <h2 className="text-4xl font-bold text-center mb-16">
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+          <span className="gradient-text">
             How It Works
           </span>
         </h2>
