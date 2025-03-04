@@ -42,10 +42,9 @@ export function MusicPlayer() {
   // Spacebar to toggle play/pause
   useEffect(() => {
     const keyDownHandler = (e: KeyboardEvent) => {
-      if (e.key === ' ' && e.target === document.body) {
-        e.preventDefault();
-        togglePlay();
-      }
+      if (e.key !== ' ' || e.target !== document.body) return;
+      e.preventDefault();
+      togglePlay();
     }
 
     window.addEventListener("keydown", keyDownHandler);
