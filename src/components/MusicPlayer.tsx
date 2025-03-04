@@ -39,6 +39,20 @@ export function MusicPlayer() {
   const [prevVolume, setPrevVolume] = useState(volume);
   const progressRef = useRef<HTMLDivElement>(null);
 
+  // Spacebar to toggle play/pause
+  useEffect(() => {
+    const keyDownHandler = (e: KeyboardEvent) => {
+      if (e.key !== ' ' || e.target !== document.body) return;
+      e.preventDefault();
+      togglePlay();
+    }
+
+    window.addEventListener("keydown", keyDownHandler);
+    return () => {
+      window.removeEventListener("keydown", keyDownHandler);
+    };
+  }, [togglePlay]);
+
   const toggleMute = () => {
     if (isMuted) {
       setVolume(prevVolume);
