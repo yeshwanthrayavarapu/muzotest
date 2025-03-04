@@ -6,14 +6,10 @@ export interface CreateTrackInput {
 export interface Track {
   id: string;
   title: string;
-  description: string;
-  genre: string;
-  duration: string;
-  plays: number;
-  likes: number;
-  artist: string;
+  artist?: string;
   coverUrl: string;
   audioUrl: string;
+  duration: string;
 }
 
 export interface CreateTrackInput {

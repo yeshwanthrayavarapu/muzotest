@@ -8,6 +8,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { useAudio } from '@/contexts/AudioContext';
 import { AuthGuard } from '@/components/AuthGuard';``
 import type { Track } from '@/types/music';
+import CoverArt from "@/components/CoverArt";
 
 export default function LibraryPage() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -99,11 +100,7 @@ export default function LibraryPage() {
                     className="relative w-16 min-w-16 h-16 mr-4 rounded-lg overflow-hidden group-hover:shadow-lg transition-shadow cursor-pointer"
                     onClick={() => playTrack(track)}
                   >
-                    <img
-                      src={track.coverUrl}
-                      alt={track.title}
-                      className="w-full h-full object-cover"
-                    />
+                    <CoverArt track={track} height="100%" />
                     <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <Play size={24} className="text-white" />
                     </div>
