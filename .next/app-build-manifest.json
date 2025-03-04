@@ -16,11 +16,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/create/page.js"
     ],
-    "/library/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/library/page.js"
-    ],
     "/_not-found/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
