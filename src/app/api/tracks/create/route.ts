@@ -34,22 +34,25 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to generate audio');
     }
 
-    const { audio_url, audio_base64 } = await azureResponse.json();
-    
+    // HACK: The API returns a stringified JSON response with escaped quotes.
+    //       Parse it twice to get the JSON object.
+    const json = JSON.parse(await azureResponse.json());
+    const { audio_url, audio_base64 } = json;
+
     // Generate a random cover image based on the prompt
     const coverUrl = await getRandomImageUrl(prompt);
-    
+
     const id = crypto.randomUUID();
     const title = prompt.substring(0, 50); // Use first 50 chars of prompt as title
     const createdAt = new Date().toISOString();
-    
+
     // Generate a genre based on the prompt
     const genre = generateGenre(prompt);
-    
+
     // Placeholder values for additional track metadata
     const artist = "AI Music"; // Default artist name
     const duration = "3:30"; // Placeholder duration
-    
+
     // Store track in database with cover image URL
     await executeQuery(`
       INSERT INTO Tracks (id, title, description, genre, duration, artist, coverUrl, audioUrl, prompt, createdAt) 
@@ -107,16 +110,16 @@ function generateGenre(prompt: string): string {
     'ambient': ['ambient', 'atmospheric', 'calm', 'peaceful', 'meditation', 'relax'],
     'indie': ['indie', 'alternative', 'underground', 'diy']
   };
-  
+
   const promptLower = prompt.toLowerCase();
-  
+
   // Check if any genre keywords are in the prompt
   for (const [genre, keywords] of Object.entries(genreKeywords)) {
     if (keywords.some(keyword => promptLower.includes(keyword))) {
       return genre;
     }
   }
-  
+
   // Default to a random genre if no keywords match
   const genres = Object.keys(genreKeywords);
   return genres[Math.floor(Math.random() * genres.length)];
