@@ -7,8 +7,6 @@ CREATE TABLE Tracks (
     description VARCHAR(500),
     genre VARCHAR(50),
     duration VARCHAR(10),
-    plays INT DEFAULT 0,
-    likes INT DEFAULT 0,
     artist VARCHAR(100),
     coverUrl VARCHAR(255),
     audioUrl VARCHAR(255) NOT NULL,

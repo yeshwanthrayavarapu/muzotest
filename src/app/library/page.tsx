@@ -117,14 +117,6 @@ export default function LibraryPage() {
                       <Clock size={16} />
                       <span>{track.duration}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Play size={16} />
-                      <span>{track.plays}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Heart size={16} />
-                      <span>{track.likes}</span>
-                    </div>
                     <a
                       href={track.audioUrl}
                       download

@@ -10,6 +10,8 @@ export interface Track {
   coverUrl: string;
   audioUrl: string;
   duration: string;
+  description: string;
+  genre: string;
 }
 
 export interface CreateTrackInput {
