@@ -1,11 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { signOut, useSession } from 'next-auth/react';
-import { Music } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Music, User, LogOut } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
 
 export function Navbar() {
-  const { data: session } = useSession(); // Get session info
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push('/');
+  };
 
   return (
     <nav className="w-full px-12 py-5 flex justify-between items-center bg-transparent backdrop-blur-sm">
@@ -28,14 +35,26 @@ export function Navbar() {
               Library
             </Link>
           </li>
+          {session?.user && (
+            <li>
+              <Link 
+                href={`/profile/${session.user.id}`}
+                className="text-white hover:text-cyan-400 transition-colors flex items-center gap-2"
+              >
+                <User size={20} />
+                Profile
+              </Link>
+            </li>
+          )}
         </ul>
 
         <div className="flex space-x-4">
-          {session ? (
+          {status === "authenticated" ? (
             <button
-              onClick={() => signOut({ callbackUrl: '/' })}
-              className="px-5 py-2 border-2 border-white text-white rounded-md hover:text-cyan-400 hover:border-cyan-400 transition-colors"
+              onClick={handleSignOut}
+              className="px-5 py-2 border-2 border-white text-white rounded-md hover:text-cyan-400 hover:border-cyan-400 transition-colors flex items-center gap-2"
             >
+              <LogOut size={16} />
               Sign Out
             </button>
           ) : (

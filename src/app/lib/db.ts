@@ -1,7 +1,7 @@
 import * as sql from "mssql";
 import 'dotenv/config';
 
-const config = {
+export const config = {
   user: process.env.DB_USER ?? "muzo",
   password: process.env.DB_PASSWORD ?? "taszyq-jiwZen-fakcy2",
   server: process.env.DB_HOST ?? 'muzodb.database.windows.net',
