@@ -12,8 +12,6 @@ export interface Track {
   duration: string;
   description: string;
   genre: string;
-  plays: number;
-  likes: number;
 }
 
 export interface CreateTrackInput {
