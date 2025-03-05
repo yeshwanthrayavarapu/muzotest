@@ -1,5 +1,6 @@
 'use client';
 
+import { Track } from '@/types/music';
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 
 interface AudioContextType {
@@ -20,15 +21,6 @@ interface AudioContextType {
   isRepeating: boolean;
   playNext: () => void;
   playPrevious: () => void;
-}
-
-interface Track {
-  id: string;
-  title: string;
-  artist?: string;
-  coverUrl: string;
-  audioUrl: string;
-  duration: string;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);

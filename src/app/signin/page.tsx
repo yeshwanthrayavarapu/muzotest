@@ -70,7 +70,7 @@ export default function SignInPage() {
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+            className="w-full blue-button"
             disabled={loading}
           >
             {loading ? 'Signing In...' : (

@@ -8,6 +8,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { useAudio } from '@/contexts/AudioContext';
 import { AuthGuard } from '@/components/AuthGuard';``
 import type { Track } from '@/types/music';
+import CoverArt from "@/components/CoverArt";
 
 export default function LibraryPage() {
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -66,7 +67,7 @@ export default function LibraryPage() {
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+              <span className="gradient-text">
                 Your Library
               </span>
             </h1>
@@ -78,7 +79,7 @@ export default function LibraryPage() {
                   onClick={() => setSelectedGenre(genre)}
                   className={`px-4 py-2 rounded-full text-sm transition-colors ${
                     selectedGenre === genre
-                      ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-black'
+                      ? 'gradient-background text-black'
                       : 'bg-[#1e1b3b] text-white hover:bg-[#2a264d]'
                   }`}
                 >
@@ -99,11 +100,7 @@ export default function LibraryPage() {
                     className="relative w-16 min-w-16 h-16 mr-4 rounded-lg overflow-hidden group-hover:shadow-lg transition-shadow cursor-pointer"
                     onClick={() => playTrack(track)}
                   >
-                    <img
-                      src={track.coverUrl}
-                      alt={track.title}
-                      className="w-full h-full object-cover"
-                    />
+                    <CoverArt track={track} height="100%" />
                     <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <Play size={24} className="text-white" />
                     </div>
@@ -119,14 +116,6 @@ export default function LibraryPage() {
                     <div className="flex items-center gap-2">
                       <Clock size={16} />
                       <span>{track.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Play size={16} />
-                      <span>{track.plays}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Heart size={16} />
-                      <span>{track.likes}</span>
                     </div>
                     <a
                       href={track.audioUrl}

@@ -46,7 +46,7 @@ export default function SignUpPage() {
           <input name="email" type="email" placeholder="Email" className="w-full px-4 py-3 bg-[#2c284e] rounded-lg text-white" required />
           <input name="password" type="password" placeholder="Password" className="w-full px-4 py-3 bg-[#2c284e] rounded-lg text-white" required />
 
-          <button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 rounded-lg hover:opacity-90">Sign Up</button>
+          <button type="submit" className="blue-button w-full">Sign Up</button>
         </form>
       </div>
     </div>
