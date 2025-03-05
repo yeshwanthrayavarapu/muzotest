@@ -4,7 +4,7 @@ import * as sql from 'mssql';
 import { getRandomImageUrl } from '@/app/lib/imageUtils';
 
 const AZURE_ENDPOINT = 'https://muzo-ydwzt.australiaeast.inference.ml.azure.com/score';
-const AZURE_API_KEY = process.env.AZURE_API_KEY || 'YOUR_AZURE_API_KEY';
+const AZURE_API_KEY = process.env.AZURE_API_KEY || 'h1GlRJnmVXtHtYk2EpDy2tKpnpSaeuMZX1SjRhA1E9NFINdzY8EQJQQJ99BBAAAAAAAAAAAAINFRAZMLduZN';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,6 +28,8 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ prompt }),
     });
 
+    console.log('Azure response:', azureResponse);
+
     if (!azureResponse.ok) {
       throw new Error('Failed to generate audio');
     }
@@ -50,16 +52,14 @@ export async function POST(request: NextRequest) {
     
     // Store track in database with cover image URL
     await executeQuery(`
-      INSERT INTO Tracks (id, title, description, genre, duration, plays, likes, artist, coverUrl, audioUrl, prompt, createdAt) 
-      VALUES (@id, @title, @desc, @genre, @duration, @plays, @likes, @artist, @coverUrl, @audioUrl, @prompt, @createdAt)
+      INSERT INTO Tracks (id, title, description, genre, duration, artist, coverUrl, audioUrl, prompt, createdAt) 
+      VALUES (@id, @title, @desc, @genre, @duration, @artist, @coverUrl, @audioUrl, @prompt, @createdAt)
     `, [
       { name: 'id', value: id, type: sql.VarChar(255) },
       { name: 'title', value: title, type: sql.VarChar(255) },
       { name: 'desc', value: prompt, type: sql.VarChar(500) },
       { name: 'genre', value: genre, type: sql.VarChar(50) },
       { name: 'duration', value: duration, type: sql.VarChar(10) },
-      { name: 'plays', value: 0, type: sql.Int() },
-      { name: 'likes', value: 0, type: sql.Int() },
       { name: 'artist', value: artist, type: sql.VarChar(100) },
       { name: 'coverUrl', value: coverUrl, type: sql.VarChar(255) },
       { name: 'audioUrl', value: audio_url, type: sql.VarChar(255) },
