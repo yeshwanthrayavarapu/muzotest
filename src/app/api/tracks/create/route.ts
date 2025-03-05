@@ -70,6 +70,8 @@ export async function POST(request: NextRequest) {
       { name: 'createdAt', value: createdAt, type: sql.DateTime() }
     ]);
 
+    const audioUrl = `data:audio/wav;base64,${audio_base64}`;
+
     return NextResponse.json({
       id,
       title,
@@ -80,7 +82,7 @@ export async function POST(request: NextRequest) {
       likes: 0,
       artist,
       coverUrl,
-      audioUrl: audio_url,
+      audioUrl,
       prompt,
       createdAt,
     });
