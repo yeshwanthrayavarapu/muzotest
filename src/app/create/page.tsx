@@ -10,6 +10,7 @@ import { AudioVisualizer } from '@/components/AudioVisualizer';
 interface TrackData {
   id: string;
   title: string;
+  playUrl: string;
   audioUrl: string;
   coverImageUrl?: string;
   duration: number;
@@ -73,6 +74,7 @@ export default function CreatePage() {
         id: data.id || 'track-123',
         title: prompt.trim().substring(0, 40) + '...',
         audioUrl: data.audioUrl || '/demo-track.mp3',
+        playUrl: data.playUrl || '/demo-track.mp3',
         coverImageUrl: data.coverImageUrl || '/demo-cover.jpg',
         duration: data.duration || 180, // 3 minutes in seconds
       });
@@ -129,11 +131,11 @@ export default function CreatePage() {
   };
 
   const handleDownload = () => {
-    if (!createdTrack?.audioUrl) return;
+    if (!createdTrack?.playUrl) return;
 
     // Extract base64 data from the data URL
-    const base64Data = createdTrack.audioUrl.split(',')[1];
-    
+    const base64Data = createdTrack.playUrl.split(',')[1];
+
     // Convert base64 to blob
     const byteCharacters = atob(base64Data);
     const byteArrays = [];
@@ -163,6 +165,29 @@ export default function CreatePage() {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
+  };
+
+  const handleSaveToLibrary = async () => {
+    if (!createdTrack) return;
+    
+    try {
+      const response = await fetch('/api/tracks/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(createdTrack),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save track');
+      }
+
+      // Show success message or handle UI feedback
+    } catch (error) {
+      console.error('Error saving track:', error);
+      // Handle error in UI
+    }
   };
 
   const submit = (
@@ -400,7 +425,7 @@ export default function CreatePage() {
                         <div className="space-y-4">
                           <audio 
                             ref={audioRef} 
-                            src={createdTrack.audioUrl} 
+                            src={createdTrack.playUrl} 
                             onTimeUpdate={handleTimeUpdate}
                             onEnded={() => setIsPlaying(false)}
                             onPlay={() => setIsPlaying(true)}
@@ -433,7 +458,10 @@ export default function CreatePage() {
                           
                           {/* Action buttons */}
                           <div className="flex flex-wrap gap-3 mt-6">
-                            <button className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg">
+                            <button 
+                              onClick={handleSaveToLibrary}
+                              className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg"
+                            >
                               <Save size={18} />
                               <span>Save to Library</span>
                             </button>

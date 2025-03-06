@@ -62,49 +62,27 @@ export async function POST(request: NextRequest) {
     const { audio_url, audio_base64 } = json;
 
     const id = crypto.randomUUID();
-    const title = prompt.substring(0, 50); // Use first 50 chars of prompt as title
+    const title = prompt.substring(0, 50);
     const createdAt = new Date().toISOString();
-
-    // Generate a genre based on the prompt
     const genre = generateGenre(prompt);
+    const artist = "AI Music";
+    const duration = "15";
 
-    // Placeholder values for additional track metadata
-    const artist = "AI Music"; // Default artist name
-    const duration = "15"; // Placeholder duration
-
-    // Store track in database with cover image URL
-    await executeQuery(`
-      INSERT INTO Tracks (id, title, description, genre, duration, artist, coverUrl, audioUrl, prompt, createdAt, userId) 
-      VALUES (@id, @title, @desc, @genre, @duration, @artist, @coverUrl, @audioUrl, @prompt, @createdAt, @userId)
-    `, [
-      { name: 'id', value: id, type: sql.VarChar(255) },
-      { name: 'title', value: title, type: sql.VarChar(255) },
-      { name: 'desc', value: prompt, type: sql.VarChar(500) },
-      { name: 'genre', value: genre, type: sql.VarChar(50) },
-      { name: 'duration', value: duration, type: sql.VarChar(10) },
-      { name: 'artist', value: artist, type: sql.VarChar(100) },
-      { name: 'coverUrl', value: coverUrl, type: sql.VarChar(255) },
-      { name: 'audioUrl', value: audio_url, type: sql.VarChar(255) },
-      { name: 'prompt', value: prompt, type: sql.VarChar(500) },
-      { name: 'createdAt', value: createdAt, type: sql.DateTime() },
-      { name: 'userId', value: userId, type: sql.VarChar(36) }
-    ]);
-
-    const audioUrl = `data:audio/wav;base64,${audio_base64}`;
+    const playUrl = `data:audio/wav;base64,${audio_base64}`;
 
     return NextResponse.json({
       id,
       title,
-      description: prompt,
+      description : prompt,
       genre,
       duration,
-      plays: 0,
-      likes: 0,
       artist,
       coverUrl,
-      audioUrl,
+      audioUrl: audio_url,
+      playUrl: playUrl,
       prompt,
       createdAt,
+      userId,
     });
 
   } catch (error) {
