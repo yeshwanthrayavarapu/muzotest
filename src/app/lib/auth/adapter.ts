@@ -3,10 +3,10 @@ import { executeQuery } from "@/app/lib/db"
 
 export function SQLServerAdapter(): Adapter {
   return {
-    async createUser(data: { name: any; email: any; password: any }) {
+    async createUser(data: Partial<AdapterUser>) {
       const result = await executeQuery(
-        "INSERT INTO Users (name, email, password) VALUES (@param0, @param1, @param2); SELECT SCOPE_IDENTITY() as id",
-        [data.name, data.email, data.password]
+        "INSERT INTO Users (id, name, email, password) VALUES (@param0, @param1, @param2, @param3); SELECT SCOPE_IDENTITY() as id",
+        [crypto.randomUUID(), data.name, data.email, data.password]
       )
       return { ...data, id: result[0].id }
     },

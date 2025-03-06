@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
 import { useAudio } from '@/contexts/AudioContext';
-import { AuthGuard } from '@/components/AuthGuard';``
+import { AuthGuard } from '@/components/AuthGuard';
 import type { Track } from '@/types/music';
 import CoverArt from "@/components/CoverArt";
 
@@ -29,8 +29,14 @@ export default function LibraryPage() {
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        const response = await fetch("/api/songs");
-        if (!response.ok) throw new Error("Failed to fetch tracks");
+        const response = await fetch("/api/tracks");
+        if (!response.ok) {
+          if (response.status === 401) {
+            router.push('/login');
+            return;
+          }
+          throw new Error("Failed to fetch tracks");
+        }
         const data = await response.json();
         setTracks(data);
       } catch (error) {
@@ -41,7 +47,7 @@ export default function LibraryPage() {
     };
 
     fetchTracks();
-  }, []);
+  }, [router]);
 
   // Replace the playlist with the fetched tracks
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/lib/authOptions';
+import { authOptions } from '@/app/lib/auth/authOptions';
 import { writeFile } from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';

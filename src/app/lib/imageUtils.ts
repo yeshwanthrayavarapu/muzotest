@@ -12,34 +12,10 @@ const IMAGE_APIS = {
 /**
  * Get a random image URL based on search terms
  */
-export async function getRandomImageUrl(prompt: string, api = IMAGE_APIS.UNSPLASH): Promise<string> {
-  // Extract keywords from prompt (simple version)
-  const keywords = extractKeywords(prompt);
-  const searchTerm = keywords.join(',');
-
-  try {
-    switch (api) {
-      case IMAGE_APIS.UNSPLASH:
-        // Using Unsplash Source service (no API key required)
-        return `https://source.unsplash.com/random/800x800/?${encodeURIComponent(searchTerm)}`;
-      
-      case IMAGE_APIS.PICSUM:
-        // Lorem Picsum doesn't support search terms, but provides random images
-        const randomId = Math.floor(Math.random() * 1000);
-        return `https://picsum.photos/seed/${randomId}/800/800`;
-      
-      case IMAGE_APIS.LOREM_FLICKR:
-        // LoremFlickr supports keywords
-        return `https://loremflickr.com/800/800/${encodeURIComponent(searchTerm)}`;
-        
-      default:
-        return `https://source.unsplash.com/random/800x800/?${encodeURIComponent('music')}`;
-    }
-  } catch (error) {
-    console.error('Error fetching random image:', error);
-    // Fallback to a default music-related image
-    return 'https://source.unsplash.com/random/800x800/?music';
-  }
+export async function getRandomImageUrl(prompt: string): Promise<string> {
+  // Simplified to use Picsum directly since it works reliably
+  const randomId = Math.floor(Math.random() * 1000);
+  return `https://picsum.photos/seed/${randomId}/800/800`;
 }
 
 /**

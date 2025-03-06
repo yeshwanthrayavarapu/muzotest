@@ -2,12 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery } from '@/app/lib/db';
 import * as sql from 'mssql';
 import { getRandomImageUrl } from '@/app/lib/imageUtils';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth/authOptions';
 
 const AZURE_ENDPOINT = 'https://muzo-eymyi.australiaeast.inference.ml.azure.com/score';
 const AZURE_API_KEY = process.env.AZURE_API_KEY || 'h1GlRJnmVXtHtYk2EpDy2tKpnpSaeuMZX1SjRhA1E9NFINdzY8EQJQQJ99BBAAAAAAAAAAAAINFRAZMLduZN';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user ID from email
+    const userResult = await executeQuery(
+      "SELECT id FROM Users WHERE email = @param0",
+      [session.user.email]
+    );
+
+    if (!userResult?.[0]?.id) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const userId = userResult[0].id;
     const formData = await request.formData();
     const prompt = formData.get('prompt') as string;
 
@@ -17,6 +36,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Generate cover URL before Azure API call
+    const coverUrl = await getRandomImageUrl(prompt);
 
     // Call Azure Inference API
     const azureResponse = await fetch(AZURE_ENDPOINT, {
@@ -39,9 +61,6 @@ export async function POST(request: NextRequest) {
     const json = JSON.parse(await azureResponse.json());
     const { audio_url, audio_base64 } = json;
 
-    // Generate a random cover image based on the prompt
-    const coverUrl = await getRandomImageUrl(prompt);
-
     const id = crypto.randomUUID();
     const title = prompt.substring(0, 50); // Use first 50 chars of prompt as title
     const createdAt = new Date().toISOString();
@@ -55,8 +74,8 @@ export async function POST(request: NextRequest) {
 
     // Store track in database with cover image URL
     await executeQuery(`
-      INSERT INTO Tracks (id, title, description, genre, duration, artist, coverUrl, audioUrl, prompt, createdAt) 
-      VALUES (@id, @title, @desc, @genre, @duration, @artist, @coverUrl, @audioUrl, @prompt, @createdAt)
+      INSERT INTO Tracks (id, title, description, genre, duration, artist, coverUrl, audioUrl, prompt, createdAt, userId) 
+      VALUES (@id, @title, @desc, @genre, @duration, @artist, @coverUrl, @audioUrl, @prompt, @createdAt, @userId)
     `, [
       { name: 'id', value: id, type: sql.VarChar(255) },
       { name: 'title', value: title, type: sql.VarChar(255) },
@@ -67,7 +86,8 @@ export async function POST(request: NextRequest) {
       { name: 'coverUrl', value: coverUrl, type: sql.VarChar(255) },
       { name: 'audioUrl', value: audio_url, type: sql.VarChar(255) },
       { name: 'prompt', value: prompt, type: sql.VarChar(500) },
-      { name: 'createdAt', value: createdAt, type: sql.DateTime() }
+      { name: 'createdAt', value: createdAt, type: sql.DateTime() },
+      { name: 'userId', value: userId, type: sql.VarChar(36) }
     ]);
 
     const audioUrl = `data:audio/wav;base64,${audio_base64}`;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import sql from 'mssql';
-import { authOptions } from '@/app/lib/authOptions';
+import { authOptions } from '@/app/lib/auth/authOptions';
 import { executeQuery,config } from '@/app/lib/db';
 
 // GET user data

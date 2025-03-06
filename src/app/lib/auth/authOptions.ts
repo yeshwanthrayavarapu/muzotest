@@ -2,9 +2,11 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { executeQuery } from "@/app/lib/db";
 import { SessionStrategy } from "next-auth";
-import { SQLServerAdapter } from "@/app/lib/auth/adapter";
+import { SQLServerAdapter } from "./adapter";
+import { AuthOptions } from "next-auth";
+import type { User } from "next-auth";
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
   adapter: SQLServerAdapter(),
   providers: [
     CredentialsProvider({
@@ -18,22 +20,30 @@ export const authOptions = {
           throw new Error("Missing email or password");
         }
 
-        const user = await executeQuery(
+        const users = await executeQuery(
           "SELECT * FROM Users WHERE email = @param0",
           [credentials.email]
         );
 
-        if (!user || user.length === 0) {
+        if (!users || users.length === 0) {
           throw new Error("User not found");
         }
 
+        const user = users[0];
+
         // Compare password hash
-        const isValid = await compare(credentials.password, user[0].password);
+        const isValid = await compare(credentials.password, user.password);
         if (!isValid) {
           throw new Error("Invalid password");
         }
 
-        return { id: user[0].id, name: user[0].name, email: user[0].email, password: user[0].password };
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          password: user.password,
+          isAdmin: user.isAdmin
+        } as User;
       },
     }),
   ],
@@ -45,17 +55,19 @@ export const authOptions = {
     strategy: "jwt" as SessionStrategy,
   },
   callbacks: {
-    async session({ session, token }: { session: any, token: any }) {
+    async session({ session, token }) {
       if (session?.user) {
-        session.user.id = token.id
+        session.user.id = token.id;
+        session.user.isAdmin = token.isAdmin;
       }
-      return session
+      return session;
     },
-    async jwt({ token, user }: { token: any, user: any }) {
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
+        token.id = user.id;
+        token.isAdmin = user.isAdmin;
       }
-      return token
+      return token;
     }
   },
   secret: process.env.NEXTAUTH_SECRET,
