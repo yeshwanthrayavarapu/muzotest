@@ -44,7 +44,8 @@ CREATE TABLE Tracks (
     prompt VARCHAR(500),
     userId VARCHAR(36),
     createdAt DATETIME DEFAULT GETDATE(),
-    updatedAt DATETIME DEFAULT GETDATE()
+    updatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
 );
 
 -- Create indexes for faster queries
