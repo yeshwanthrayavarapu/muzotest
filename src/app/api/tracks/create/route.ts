@@ -3,7 +3,7 @@ import { executeQuery } from '@/app/lib/db';
 import * as sql from 'mssql';
 import { getRandomImageUrl } from '@/app/lib/imageUtils';
 
-const AZURE_ENDPOINT = 'https://muzo-ydwzt.australiaeast.inference.ml.azure.com/score';
+const AZURE_ENDPOINT = 'https://muzo-eymyi.australiaeast.inference.ml.azure.com/score';
 const AZURE_API_KEY = process.env.AZURE_API_KEY || 'h1GlRJnmVXtHtYk2EpDy2tKpnpSaeuMZX1SjRhA1E9NFINdzY8EQJQQJ99BBAAAAAAAAAAAAINFRAZMLduZN';
 
 export async function POST(request: NextRequest) {
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     // Placeholder values for additional track metadata
     const artist = "AI Music"; // Default artist name
-    const duration = "3:30"; // Placeholder duration
+    const duration = "15"; // Placeholder duration
 
     // Store track in database with cover image URL
     await executeQuery(`
