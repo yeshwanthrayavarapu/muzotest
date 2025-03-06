@@ -44,8 +44,7 @@ CREATE TABLE Tracks (
     prompt VARCHAR(500),
     userId VARCHAR(36),
     createdAt DATETIME DEFAULT GETDATE(),
-    updatedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (userId) REFERENCES Users(id)
+    updatedAt DATETIME DEFAULT GETDATE()
 );
 
 -- Create indexes for faster queries

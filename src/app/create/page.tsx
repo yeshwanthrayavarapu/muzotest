@@ -128,6 +128,43 @@ export default function CreatePage() {
     setPrompt(prompt);
   };
 
+  const handleDownload = () => {
+    if (!createdTrack?.audioUrl) return;
+
+    // Extract base64 data from the data URL
+    const base64Data = createdTrack.audioUrl.split(',')[1];
+    
+    // Convert base64 to blob
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+    
+    for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+      const slice = byteCharacters.slice(offset, offset + 1024);
+      const byteNumbers = new Array(slice.length);
+      
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+    
+    const blob = new Blob(byteArrays, { type: 'audio/wav' });
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${createdTrack.title}.wav`;
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   const submit = (
     <div>
       <button
@@ -400,7 +437,10 @@ export default function CreatePage() {
                               <Save size={18} />
                               <span>Save to Library</span>
                             </button>
-                            <button className="flex items-center justify-center gap-2 py-3 px-4 border border-cyan-500/30 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-colors">
+                            <button 
+                              onClick={handleDownload}
+                              className="flex items-center justify-center gap-2 py-3 px-4 border border-cyan-500/30 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-colors"
+                            >
                               <Download size={18} />
                               <span>Download</span>
                             </button>
