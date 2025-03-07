@@ -2,9 +2,7 @@ node_modules
 .vscode
 .next
 .DS_Store
-.env
 *.log
 coverage
 .env.*
 .env.example
-.env 
