@@ -5,8 +5,8 @@ import { getRandomImageUrl } from '@/app/lib/imageUtils';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth/authOptions';
 
-const AZURE_ENDPOINT = 'https://muzo-eymyi.australiaeast.inference.ml.azure.com/score';
-const AZURE_API_KEY = process.env.AZURE_API_KEY || 'h1GlRJnmVXtHtYk2EpDy2tKpnpSaeuMZX1SjRhA1E9NFINdzY8EQJQQJ99BBAAAAAAAAAAAAINFRAZMLduZN';
+const AZURE_ENDPOINT = process.env.AZURE_ENDPOINT ;
+const AZURE_API_KEY = process.env.AZURE_API_KEY;
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +39,10 @@ export async function POST(request: NextRequest) {
 
     // Generate cover URL before Azure API call
     const coverUrl = await getRandomImageUrl(prompt);
+
+    if (!AZURE_ENDPOINT || !AZURE_API_KEY) {
+      throw new Error('Azure configuration is missing');
+    }
 
     // Call Azure Inference API
     const azureResponse = await fetch(AZURE_ENDPOINT, {

@@ -31,3 +31,7 @@ INSERT INTO Users (id, username, email, password) VALUES
 (1, 'yesh', 'yesh@muzo.ai','123456');
 
 Delete from Songs where id = 3;
+
+
+
+SELECT * FROM Tracks;

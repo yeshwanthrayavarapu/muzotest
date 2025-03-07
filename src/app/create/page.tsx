@@ -6,6 +6,7 @@ import { AudioInput } from '@/components/AudioInput';
 import { AuthGuard } from '@/components/AuthGuard';
 import { Sidebar } from '@/components/Sidebar';
 import { AudioVisualizer } from '@/components/AudioVisualizer';
+import { useRouter } from 'next/navigation';
 
 interface TrackData {
   id: string;
@@ -32,6 +33,7 @@ export default function CreatePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,10 +185,11 @@ export default function CreatePage() {
         throw new Error('Failed to save track');
       }
 
-      // Show success message or handle UI feedback
+      // Redirect to library page after successful save
+      router.push('/library');
     } catch (error) {
       console.error('Error saving track:', error);
-      // Handle error in UI
+      // You might want to show an error message to the user here
     }
   };
 

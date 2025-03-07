@@ -1,69 +1,108 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play, Download, Clock, Heart } from "lucide-react";
+import { Play, Download, Clock, Heart, RefreshCcw } from "lucide-react";
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { Sidebar } from '@/components/Sidebar';
 import { useAudio } from '@/contexts/AudioContext';
 import { AuthGuard } from '@/components/AuthGuard';
 import type { Track } from '@/types/music';
 import CoverArt from "@/components/CoverArt";
+import { openDB } from 'idb';
+
+// Modify getAudioFromCache to use IndexedDB for larger storage
+const getAudioFromCache = async (url: string): Promise<string | null> => {
+  const dbName = 'audioCache';
+  const storeName = 'audioFiles';
+  
+  try {
+    const db = await openDB(dbName, 1, {
+      upgrade(db) {
+        db.createObjectStore(storeName);
+      },
+    });
+
+    const cached = await db.get(storeName, url);
+    if (cached) {
+      return URL.createObjectURL(cached);
+    }
+    return null;
+  } catch (error) {
+    console.error('Cache error:', error);
+    return null;
+  }
+};
 
 export default function LibraryPage() {
-  const [tracks, setTracks] = useState<Track[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const { playTrack, playlist } = useAudio();
 
-  useEffect(() => {
-    // Generate random cover images for mock tracks
-    const generateRandomCover = () => {
-      const id = Math.floor(Math.random() * 1000);
-      return `https://picsum.photos/seed/${id}/300/300`;
-    };
-  }, []);
+  const { data: tracks = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['tracks'],
+    queryFn: async () => {
+      // Always fetch fresh data from API
+      const response = await fetch("/api/tracks");
+      if (!response.ok) throw new Error("Failed to fetch tracks");
+      const data = await response.json();
 
-  useEffect(() => {
-    const fetchTracks = async () => {
-      try {
-        const response = await fetch("/api/tracks");
-        if (!response.ok) {
-          if (response.status === 401) {
-            router.push('/login');
-            return;
-          }
-          throw new Error("Failed to fetch tracks");
-        }
-        const data = await response.json();
-        setTracks(data);
-      } catch (error) {
-        console.error("Error fetching tracks:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      return data.map((track: Track) => ({
+        ...track,
+        audioUrl: track.audioUrl.includes('blob.core.windows.net') 
+          ? `/api/proxy-audio?blob=${encodeURIComponent(track.audioUrl)}`
+          : track.audioUrl
+      }));
+    },
+    staleTime: 0,  // Always consider data stale
+    refetchOnMount: true,
+    refetchOnWindowFocus: true  // Refresh when window regains focus
+  });
 
-    fetchTracks();
-  }, [router]);
-
-  // Replace the playlist with the fetched tracks
+  // Update playlist when tracks change
   useEffect(() => {
-    playlist.splice(0, playlist.length, ...tracks);
+    if (tracks.length > 0) {
+      playlist.splice(0, playlist.length, ...tracks);
+    }
   }, [tracks]);
 
-  if (loading) {
+  const handlePlayTrack = async (track: Track) => {
+    try {
+      const cachedUrl = await getAudioFromCache(track.audioUrl);
+      if (cachedUrl) {
+        playTrack({ ...track, audioUrl: cachedUrl });
+        return;
+      }
+
+      const response = await fetch(track.audioUrl);
+      const blob = await response.blob();
+      
+      // Store in IndexedDB
+      const db = await openDB('audioCache', 1);
+      await db.put('audioFiles', blob, track.audioUrl);
+      
+      const objectUrl = URL.createObjectURL(blob);
+      playTrack({ ...track, audioUrl: objectUrl });
+    } catch (error) {
+      console.error('Error playing track:', error);
+    }
+  };
+
+  if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  // Fix: Use Array.from instead of Set
-  const genres = ['all', ...Array.from(new Set(tracks.map(track => track.genre)))];
+  if (error) {
+    return <div className="flex items-center justify-center min-h-screen">Error loading tracks</div>;
+  }
+
+  const genres = ['all', ...Array.from(new Set(tracks.map((track: Track) => track.genre)))];
   
   const filteredTracks = selectedGenre === 'all' 
     ? tracks 
-    : tracks.filter(track => track.genre === selectedGenre);
+    : tracks.filter((track: Track) => track.genre === selectedGenre);
 
   return (
     <AuthGuard>
@@ -72,31 +111,40 @@ export default function LibraryPage() {
       <div className="flex-1 ml-64">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold">
-              <span className="gradient-text">
-                Your Library
-              </span>
-            </h1>
+            <div className="flex items-center gap-4">
+              <h1 className="text-3xl font-bold">
+                <span className="gradient-text">
+                  Your Library
+                </span>
+              </h1>
+              <button
+                onClick={() => refetch()}
+                className="p-2 rounded-full bg-[#2c284e] hover:bg-cyan-400 hover:text-black transition-colors"
+                aria-label="Refresh tracks"
+              >
+                <RefreshCcw size={18} />
+              </button>
+            </div>
             
             <div className="flex gap-4">
               {genres.map((genre) => (
                 <button
-                  key={genre}
-                  onClick={() => setSelectedGenre(genre)}
+                  key={genre as string}
+                  onClick={() => setSelectedGenre(genre as string)}
                   className={`px-4 py-2 rounded-full text-sm transition-colors ${
                     selectedGenre === genre
                       ? 'gradient-background text-black'
                       : 'bg-[#1e1b3b] text-white hover:bg-[#2a264d]'
                   }`}
                 >
-                  {genre.charAt(0).toUpperCase() + genre.slice(1)}
+                  {(genre as string).charAt(0).toUpperCase() + (genre as string).slice(1)}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="grid gap-4">
-            {filteredTracks.map((track) => (
+            {filteredTracks.map((track: Track) => (
               <div
                 key={track.id}
                 className="bg-[#1e1b3b] rounded-xl overflow-hidden hover:bg-[#2a264d] transition-colors group"
@@ -104,7 +152,7 @@ export default function LibraryPage() {
                 <div className="flex items-center p-4">
                   <div 
                     className="relative w-16 min-w-16 h-16 mr-4 rounded-lg overflow-hidden group-hover:shadow-lg transition-shadow cursor-pointer"
-                    onClick={() => playTrack(track)}
+                    onClick={() => handlePlayTrack(track)}
                   >
                     <CoverArt track={track} height="100%" />
                     <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

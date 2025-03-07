@@ -112,3 +112,5 @@ BEGIN
     INNER JOIN inserted i ON t.id = i.id;
 END;
 
+
+select * from Tracks;
