@@ -114,3 +114,11 @@ END;
 
 
 select * from Tracks;
+
+
+
+
+
+UPDATE Users
+SET profileImage = 'https://api.dicebear.com/7.x/initials/svg?seed=' + name + '&backgroundColor=1e1b3b,2a2151&radius=50'
+WHERE profileImage IS NULL OR profileImage = '';

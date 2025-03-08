@@ -8,9 +8,13 @@ import Image from 'next/image';
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   
   const isActive = (path: string) => pathname === path;
+  
+  console.log('Session:', session);
+  console.log('User ID:', session?.user?.id);
+  console.log('Auth Status:', status);
   
   return (
     <div className="w-64 bg-[#16132a] p-6 flex flex-col h-screen fixed left-0 top-0">
@@ -50,7 +54,7 @@ export function Sidebar() {
       </div>
 
       {/* Profile Section at Bottom */}
-      {session?.user && (
+      {session?.user?.id ? (
         <div className="mt-auto pt-6 border-t border-gray-800">
           <Link
             href={`/profile/${session.user.id}`}
@@ -79,16 +83,16 @@ export function Sidebar() {
             </div>
           </Link>
           <Link
-            href="/settings"
+            href={status === 'authenticated' && session.user.id ? `/settings/${session.user.id}` : '/signin'}
             className={`flex items-center space-x-3 p-2 mt-2 rounded-lg transition-colors ${
-              isActive('/settings') ? 'text-cyan-400 bg-[#2a264d]' : 'text-white hover:text-cyan-400'
+              pathname.startsWith('/settings') ? 'text-cyan-400 bg-[#2a264d]' : 'text-white hover:text-cyan-400'
             }`}
           >
             <Settings size={20} />
             <span>Settings</span>
           </Link>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

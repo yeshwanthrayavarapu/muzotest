@@ -4,6 +4,22 @@ import sql from 'mssql';
 import { authOptions } from '@/app/lib/auth/authOptions';
 import { executeQuery,config } from '@/app/lib/db';
 
+// Helper function to generate profile image
+function generateProfileImage(userId: string, name: string): string {
+  // Using initials style with the user's name for more personalization
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${name}&backgroundColor=1e1b3b,2a2151&radius=50`;
+}
+
+// Helper function to get default phone format (Australian)
+function getDefaultPhone(): string {
+  return '+61-12345678'; // Fixed default Australian number
+}
+
+// Helper function to get default location
+function getDefaultLocation(): string {
+  return 'Sydney, Australia';
+}
+
 // GET user data
 export async function GET(
   request: NextRequest,
@@ -22,15 +38,29 @@ export async function GET(
     
     // Query to get user data
     const result = await sql.query`
-      SELECT name, email, phone, location, website, bio, profileImage
+      SELECT name, email, phone, location, bio, profileImage
       FROM users
       WHERE id = ${params.id}
     `;
     
-    const user = result.recordset[0];
+    let user = result.recordset[0];
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Only generate and update if profileImage is missing
+    if (!user.profileImage) {
+      const newProfileImage = generateProfileImage(params.id, user.name);
+      
+      // Update the database with the new profile image
+      await sql.query`
+        UPDATE users
+        SET profileImage = ${newProfileImage}
+        WHERE id = ${params.id}
+      `;
+      
+      user.profileImage = newProfileImage;
     }
 
     return NextResponse.json(user);
@@ -40,7 +70,7 @@ export async function GET(
       { error: 'Failed to fetch user data' },
       { status: 500 }
     );
-  }
+  } 
 }
 
 // UPDATE user data
@@ -61,6 +91,11 @@ export async function PUT(
     // Connect to SQL Server
     await sql.connect(config);
     
+    // If no profile image is provided, generate one based on the name
+    if (!data.profileImage) {
+      data.profileImage = generateProfileImage(params.id, data.name);
+    }
+    
     // Update user in database
     await sql.query`
       UPDATE users
@@ -68,7 +103,6 @@ export async function PUT(
         name = ${data.name},
         phone = ${data.phone},
         location = ${data.location},
-        website = ${data.website},
         bio = ${data.bio},
         profileImage = ${data.profileImage}
       WHERE id = ${params.id}
@@ -76,7 +110,7 @@ export async function PUT(
     
     // Get updated user data
     const result = await sql.query`
-      SELECT name, email, phone, location, website, bio, profileImage
+      SELECT name, email, phone, location, bio, profileImage
       FROM users
       WHERE id = ${params.id}
     `;
@@ -93,6 +127,5 @@ export async function PUT(
       { error: 'Failed to update user data' },
       { status: 500 }
     );
-  } finally {
-  }
+  } 
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Settings, Mail, Phone, MapPin, Globe } from 'lucide-react';
 import Link from 'next/link';
 
@@ -10,22 +10,43 @@ interface UserProfile {
   email: string;
   phone: string;
   location: string;
-  website: string;
   bio: string;
   profileImage: string;
 }
 
 export default function ProfilePage({ params }: { params: { id: string } }) {
-  const [profile] = useState<UserProfile>({
-    id: params.id,
-    name: 'Alex Johnson',
-    email: 'alex@example.com',
-    phone: '+1 (555) 123-4567',
-    location: 'New York, USA',
-    website: 'www.alexmusic.com',
-    bio: 'Music producer and sound designer. Creating electronic and ambient soundscapes.',
-    profileImage: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop'
-  });
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(`/api/user/${params.id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile');
+        }
+        const data = await response.json();
+        setProfile(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load profile');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [params.id]);
+
+  if (loading) return <div className="min-h-screen bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12] flex items-center justify-center">
+    <div className="text-white">Loading...</div>
+  </div>;
+
+  if (error) return <div className="min-h-screen bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12] flex items-center justify-center">
+    <div className="text-red-500">{error}</div>
+  </div>;
+
+  if (!profile) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12]">
@@ -52,7 +73,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
                 <p className="text-gray-400 mt-4 max-w-2xl">{profile.bio}</p>
               </div>
               <Link
-                href="/settings"
+                href={`/settings/${params.id}`}
                 className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-semibold rounded-lg hover:opacity-90 transition-opacity"
               >
                 <Settings size={20} />
@@ -73,12 +94,6 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
               <div className="flex items-center gap-3 text-gray-400">
                 <MapPin size={20} className="text-cyan-400" />
                 <span>{profile.location}</span>
-              </div>
-              <div className="flex items-center gap-3 text-gray-400">
-                <Globe size={20} className="text-cyan-400" />
-                <a href={`https://${profile.website}`} target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
-                  {profile.website}
-                </a>
               </div>
             </div>
           </div>

@@ -1,8 +1,10 @@
 {
-  "/library/page": "app/library/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/settings/[id]/page": "app/settings/[id]/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
   "/create/page": "app/create/page.js",
+  "/api/user/[id]/route": "app/api/user/[id]/route.js",
+  "/library/page": "app/library/page.js",
   "/api/tracks/route": "app/api/tracks/route.js",
-  "/api/tracks/save/route": "app/api/tracks/save/route.js",
-  "/api/proxy-audio/route": "app/api/proxy-audio/route.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js"
+  "/profile/[id]/page": "app/profile/[id]/page.js"
 }
