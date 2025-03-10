@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { Home, PlusCircle, Library, User, Settings } from 'lucide-react';
+import { Home, PlusCircle, Library, User, Settings, Megaphone } from 'lucide-react';
 import Image from 'next/image';
 
 export function Sidebar() {
@@ -84,12 +84,21 @@ export function Sidebar() {
           </Link>
           <Link
             href={status === 'authenticated' && session.user.id ? `/settings/${session.user.id}` : '/signin'}
-            className={`flex items-center space-x-3 p-2 mt-2 rounded-lg transition-colors ${
+            className={`flex items-center space-x-3 p-2 mt-2 transition-colors ${
               pathname.startsWith('/settings') ? 'text-cyan-400 bg-[#2a264d]' : 'text-white hover:text-cyan-400'
             }`}
           >
             <Settings size={20} />
             <span>Settings</span>
+          </Link>
+          <Link
+            href={"/feedback"}
+            className={`flex items-center space-x-3 p-2 transition-colors ${
+              pathname.startsWith('/settings') ? 'text-cyan-400 bg-[#2a264d]' : 'text-white hover:text-cyan-400'
+            }`}
+          >
+            <Megaphone size={20} />
+            <span>Provide Feedback</span>
           </Link>
         </div>
       ) : null}
