@@ -5,13 +5,15 @@ export class SurveyResponse {
   questionResponses: Record<string, QuestionResponse>;
   attachedData: any;
   feedbackGroup: string;
+  userId?: string;
 
-  constructor(questionList?: QuestionData[], attachedData?: any, feedbackGroup?: string) {
+  constructor(questionList?: QuestionData[], attachedData?: any, feedbackGroup?: string, userId?: string) {
     this.time = new Date();
     this.questionResponses = {};
 
     this.attachedData = attachedData ?? {};
     this.feedbackGroup = feedbackGroup ?? "default";
+    this.userId = userId;
 
     if (questionList) {
       for (const question of questionList) {
@@ -40,15 +42,6 @@ export class SurveyResponse {
 
     return this.questionResponses[dependantDescription(question, questionList) ?? ""] !==
       question.dependant.value;
-  }
-
-  fromJSON(json: string): SurveyResponse {
-    let obj = JSON.parse(json);
-    this.time = new Date(obj.time);
-    this.questionResponses = obj.questionResponses;
-    this.attachedData = obj.attachedData;
-    this.feedbackGroup = obj.feedbackGroup;
-    return this;
   }
 
   currentResponse(question: QuestionData): QuestionResponse | null {

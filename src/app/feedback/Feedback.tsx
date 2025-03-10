@@ -4,10 +4,11 @@ import { SurveyResponse } from "./response";
 import { useRef, useState } from "react";
 import { QuestionData } from "@/types/feedback";
 import Question from "./Question";
+import { useSession } from "next-auth/react";
 
 interface Props {
   questionList: QuestionData[];
-  attachedData: any;
+  attachedData?: any;
   feedbackGroup: string;
 };
 
@@ -16,7 +17,16 @@ export default function Feedback({ questionList, attachedData, feedbackGroup }: 
   const [error, setError] = useState<string | null>(null);
   const [unansweredQuestionWarnings, setUnansweredQuestionWarnings] = useState<string[]>([]);
 
-  const response = useRef(new SurveyResponse(questionList, attachedData, feedbackGroup));
+  const { data: session } = useSession();
+
+  const response = useRef(
+    new SurveyResponse(
+      questionList,
+      attachedData,
+      feedbackGroup,
+      session?.user.id
+    )
+  );
 
   const [_, setResponse] = useState(false);
 

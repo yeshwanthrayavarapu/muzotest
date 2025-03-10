@@ -9,6 +9,7 @@ import TrackFeedback from "./TrackFeedback";
 import { Stars } from "@/components/Stars";
 import { SurveyResponse } from "../feedback/response";
 import { QuestionData, QuestionType } from "@/types/feedback";
+import { useSession } from "next-auth/react";
 
 interface Props {
   createdTrack: TrackData;
@@ -20,6 +21,7 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const router = useRouter();
+  const { data: session } = useSession();
 
   // Audio controls
   const togglePlayPause = () => {
@@ -100,7 +102,7 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
     }
   };
 
-  const [showFeedback, setShowFeedback] = useState(true);
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const feedback = !showFeedback || (
     <TrackFeedback closeAction={() => setShowFeedback(false)} trackData={createdTrack} />
@@ -233,7 +235,7 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
                     <button className="p-2 rounded-full hover:bg-cyan-500/20 transition-colors">
                       <Heart size={20} className="text-gray-400 hover:text-cyan-400" />
                     </button>
-                    <Stars setStarsAction={(n) => rateTrack(n, createdTrack)} />
+                    <Stars setStarsAction={(n) => rateTrack(n, createdTrack, session?.user.id)} />
                   </div>
                 </div>
 
@@ -275,14 +277,14 @@ const formatTime = (seconds: number) => {
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 };
 
-const rateTrack = (rating: number, trackData: TrackData) => {
+const rateTrack = (rating: number, trackData: TrackData, userId?: string) => {
   const ratingQuestion: QuestionData = {
     description: "Rating",
     type: QuestionType.Number,
     optional: false,
   };
 
-  const response = new SurveyResponse([ratingQuestion], trackData, "track-rating");
+  const response = new SurveyResponse([ratingQuestion], trackData, "track-rating", userId);
 
   response.addQuestionReponse(ratingQuestion, rating);
 

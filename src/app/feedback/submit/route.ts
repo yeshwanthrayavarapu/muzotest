@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     });
 
   try {
-    const submission = new SurveyResponse().fromJSON(await request.text());
+    const submission = await request.json();
 
     if (!submission.time) return error("Invalid submission time");
 

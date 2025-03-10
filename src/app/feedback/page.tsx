@@ -82,6 +82,6 @@ import Feedback from "./Feedback";
 
 export default function FullFeedbackPage() {
   return (
-    <Feedback questionList={QUESTIONS} />
+    <Feedback questionList={QUESTIONS} feedbackGroup="main-feedback" />
   )
 }
