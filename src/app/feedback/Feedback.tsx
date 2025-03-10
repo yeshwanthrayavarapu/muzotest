@@ -42,6 +42,9 @@ export default function Feedback({ questionList, attachedData, feedbackGroup }: 
       return;
     }
 
+    surveyResponse.addDefaultResponses(questionList);
+    surveyResponse.removeHiddenResponses(questionList);
+
     const response = await surveyResponse.submit();
 
     if (!response.ok) {
@@ -85,7 +88,7 @@ export default function Feedback({ questionList, attachedData, feedbackGroup }: 
       <div className="w-full flex justify-center">
         <button
           onClick={() => submit(response.current)}
-          className="blue-button"
+          className="blue-button mt-4 !px-12"
         >
           Submit
         </button>

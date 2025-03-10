@@ -15,14 +15,7 @@ export class SurveyResponse {
     this.feedbackGroup = feedbackGroup ?? "default";
     this.userId = userId;
 
-    if (questionList) {
-      for (const question of questionList) {
-        const response = defaultResponse(question);
-        if (response !== undefined) {
-          this.addQuestionReponse(question, response);
-        }
-      }
-    }
+    this.addDefaultResponses(questionList ?? []);
   }
 
   addQuestionReponse(question: QuestionData, response: QuestionResponse) {
@@ -46,6 +39,29 @@ export class SurveyResponse {
 
   currentResponse(question: QuestionData): QuestionResponse | null {
     return this.questionResponses[question.description] ?? null;
+  }
+
+  /** Adds default responses to any questions that have not been answered but are shown.
+  *   Important for fields that have a default value such as the stars starting at 1.
+  */
+  addDefaultResponses(questionList: QuestionData[]) {
+    for (let question of questionList) {
+      if (this.currentResponse(question) || this.isHidden(question, questionList)) continue;
+  
+      let response = defaultResponse(question);
+      if (response === undefined) continue;
+
+      this.addQuestionReponse(question, response);
+    }
+  }
+
+  /** Removes responses to hidden questions */
+  removeHiddenResponses(questionList: QuestionData[]) {
+    for (let question of questionList) {
+      if (this.isHidden(question, questionList)) {
+        delete this.questionResponses[question.description];
+      }
+    }
   }
 
   submit(): Promise<Response> {
