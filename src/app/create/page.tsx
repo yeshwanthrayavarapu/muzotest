@@ -216,7 +216,7 @@ export default function CreatePage() {
                               </div>
                               <div className="w-full bg-subContainer rounded-full h-2.5">
                                 <div 
-                                  className="bg-gradient-to-r from-accent to-blue-600 h-2.5 rounded-full transition-all duration-500"
+                                  className="bg-gradient-to-r from-accent to-accent h-2.5 rounded-full transition-all duration-500"
                                   style={{ width: `${(creationStep / 3) * 100}%` }}
                                 ></div>
                               </div>

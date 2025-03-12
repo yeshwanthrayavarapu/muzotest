@@ -286,7 +286,7 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-8 py-3 bg-gradient-to-r from-altAccent to-blue-500 text-black font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+                  className="px-8 py-3 bg-gradient-to-r from-altAccent to-accent text-black font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
                 >
                   {isSaving && <LoadingSpinner />}
                   {isSaving ? 'Saving...' : 'Save Changes'}
