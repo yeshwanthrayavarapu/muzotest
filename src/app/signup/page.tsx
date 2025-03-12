@@ -27,9 +27,9 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12]">
-      <div className="bg-[#1e1b3b] p-8 rounded-xl shadow-xl w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-8 text-cyan-400">Sign Up for MUZO</h1>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="bg-container p-8 rounded-xl shadow-xl w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center mb-8 text-accent">Sign Up for MUZO</h1>
 
         {error && <p className="text-red-500 text-center">{error}</p>}
 
@@ -42,9 +42,9 @@ export default function SignUpPage() {
           handleSubmit({ name, email, password });
         }} className="space-y-6">
 
-          <input name="name" type="text" placeholder="Name" className="w-full px-4 py-3 bg-[#2c284e] rounded-lg text-white" required />
-          <input name="email" type="email" placeholder="Email" className="w-full px-4 py-3 bg-[#2c284e] rounded-lg text-white" required />
-          <input name="password" type="password" placeholder="Password" className="w-full px-4 py-3 bg-[#2c284e] rounded-lg text-white" required />
+          <input name="name" type="text" placeholder="Name" className="w-full px-4 py-3 bg-subContainer placeholder-altAccent rounded-lg text-textPrimary" required />
+          <input name="email" type="email" placeholder="Email" className="w-full px-4 py-3 bg-subContainer placeholder-altAccent rounded-lg text-textPrimary" required />
+          <input name="password" type="password" placeholder="Password" className="w-full px-4 py-3 bg-subContainer placeholder-altAccent rounded-lg text-textPrimary" required />
 
           <button type="submit" className="blue-button w-full">Sign Up</button>
         </form>

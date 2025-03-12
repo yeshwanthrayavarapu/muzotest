@@ -82,7 +82,7 @@ export function MusicPlayer() {
 
   return (
     <div
-      className={`fixed bottom-0 left-0 right-0 bg-[#1e1b3b] border-t border-gray-800 transition-all duration-300 ${
+      className={`fixed bottom-0 left-0 right-0 bg-container shadow-lg transition-all duration-300 ${
         isExpanded ? 'h-fit' : 'h-20'
         }`}
     >
@@ -95,8 +95,8 @@ export function MusicPlayer() {
               <CoverArt track={currentTrack} height="3rem" />
             </div>
             <div>
-              <h3 className="text-white font-medium">{currentTrack.title}</h3>
-              <p className="text-gray-400 text-sm">{currentTrack.artist}</p>
+              <h3 className="text-textPrimary font-medium">{currentTrack.title}</h3>
+              <p className="text-textSecondary text-sm">{currentTrack.artist}</p>
             </div>
           </div>
 
@@ -105,31 +105,31 @@ export function MusicPlayer() {
             <div className="flex items-center space-x-6">
               <button
                 onClick={toggleShuffle}
-                className={`${isShuffling ? "text-cyan-400" : "text-gray-400"} hover:text-cyan-400 transition-colors`}
+                className={`${isShuffling ? "text-accent" : "text-textSecondary"} hover:text-accent transition-colors`}
               >
                 <Shuffle size={20} />
               </button>
               <button
                 onClick={playPrevious}
-                className="text-gray-400 hover:text-cyan-400 transition-colors"
+                className="text-textSecondary hover:text-accent transition-colors"
               >
                 <SkipBack size={24} />
               </button>
               <button
                 onClick={togglePlay}
-                className="w-10 h-10 rounded-full bg-cyan-400 flex items-center justify-center hover:bg-cyan-500 transition-colors"
+                className="w-10 h-10 rounded-full bg-accent flex items-center justify-center hover:bg-altAccent transition-colors"
               >
                 {isPlaying ? <Pause size={24} /> : <Play size={24} />}
               </button>
               <button
                 onClick={playNext}
-                className="text-gray-400 hover:text-cyan-400 transition-colors"
+                className="text-textSecondary hover:text-accent transition-colors"
               >
                 <SkipForward size={24} />
               </button>
               <button
                 onClick={toggleRepeat}
-                className={`${isRepeating ? "text-cyan-400" : "text-gray-400"} hover:text-cyan-400 transition-colors`}
+                className={`${isRepeating ? "text-accent" : "text-textSecondary"} hover:text-accent transition-colors`}
               >
                 <Repeat size={20} />
               </button>
@@ -138,18 +138,18 @@ export function MusicPlayer() {
             {/* Progress Bar */}
             {!duration
               // Loading state
-              ? <div className="w-full mt-2 flex items-center space-x-2 text-xs text-gray-400 bg-gray-700 h-1 rounded-full animate-pulse"></div>
+              ? <div className="w-full mt-2 flex items-center space-x-2 text-xs text-textSecondary bg-background h-1 rounded-full animate-pulse"></div>
               // Playing state
               : (
-                <div className="w-full mt-2 flex items-center space-x-2 text-xs text-gray-400">
+                <div className="w-full mt-2 flex items-center space-x-2 text-xs text-textSecondary">
                   <span className="w-[1.6rem]">{formatTime(currentTime)}</span>
                   <div
                     ref={progressRef}
-                    className="flex-1 h-1 bg-gray-700 rounded-full cursor-pointer"
+                    className="flex-1 h-1 bg-background rounded-full cursor-pointer"
                     onClick={handleProgressClick}
                   >
                     <div
-                      className="h-full bg-cyan-400 rounded-full relative"
+                      className="h-full bg-accent rounded-full relative"
                       style={{ width: `${(currentTime / duration) * 100}%` }}
                     >
                     </div>
@@ -171,7 +171,7 @@ export function MusicPlayer() {
             <div className="flex items-center space-x-2">
               <button
                 onClick={toggleMute}
-                className="text-gray-400 hover:text-cyan-400 transition-colors"
+                className="text-textSecondary hover:text-accent transition-colors"
               >
                 {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
               </button>
@@ -182,12 +182,12 @@ export function MusicPlayer() {
                 step="0.01"
                 value={volume}
                 onChange={(e) => setVolume(parseFloat(e.target.value))}
-                className="w-24 accent-cyan-400"
+                className="w-24 accent-accent"
               />
             </div>
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-gray-400 hover:text-cyan-400 transition-colors"
+              className="text-textSecondary hover:text-accent transition-colors"
             >
               {isExpanded ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
             </button>
@@ -201,9 +201,9 @@ export function MusicPlayer() {
               <div className="relative mx-auto mb-6 w-48">
                 <CoverArt track={currentTrack} height="12rem" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">{currentTrack.title}</h2>
-              <p className="text-gray-400 mb-6">{currentTrack.artist}</p>
-              <button className="text-gray-400 hover:text-cyan-400 transition-colors">
+              <h2 className="text-2xl font-bold text-textPrimary mb-2">{currentTrack.title}</h2>
+              <p className="text-textSecondary mb-6">{currentTrack.artist}</p>
+              <button className="text-textSecondary hover:text-accent transition-colors">
                 <Heart size={24} />
               </button>
             </div>

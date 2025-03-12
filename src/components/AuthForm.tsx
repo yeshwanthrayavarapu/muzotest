@@ -71,7 +71,7 @@ export function AuthForm({ type }: AuthFormProps) {
             id="name"
             name="name"
             required
-            className="w-full px-4 py-2 bg-[#2a264d] border border-gray-600 rounded-lg focus:outline-none focus:border-cyan-400 text-white"
+            className="w-full px-4 py-2 bg-subContainer border border-gray-600 rounded-lg focus:outline-none focus:border-altAccent text-textPrimary"
           />
         </div>
       )}
@@ -84,7 +84,7 @@ export function AuthForm({ type }: AuthFormProps) {
           id="email"
           name="email"
           required
-          className="w-full px-4 py-2 bg-[#2a264d] border border-gray-600 rounded-lg focus:outline-none focus:border-cyan-400 text-white"
+          className="w-full px-4 py-2 bg-subContainer border border-gray-600 rounded-lg focus:outline-none focus:border-altAccent text-textPrimary"
         />
       </div>
       <div>
@@ -96,7 +96,7 @@ export function AuthForm({ type }: AuthFormProps) {
           id="password"
           name="password"
           required
-          className="w-full px-4 py-2 bg-[#2a264d] border border-gray-600 rounded-lg focus:outline-none focus:border-cyan-400 text-white"
+          className="w-full px-4 py-2 bg-subContainer border border-gray-600 rounded-lg focus:outline-none focus:border-altAccent text-textPrimary"
         />
       </div>
 
@@ -104,7 +104,7 @@ export function AuthForm({ type }: AuthFormProps) {
 
       <button
         type="submit"
-        className="w-full py-2 px-4 bg-cyan-400 text-black rounded-lg font-medium hover:bg-cyan-500 transition-colors"
+        className="w-full py-2 px-4 bg-accent text-black rounded-lg font-medium hover:bg-altAccent transition-colors"
       >
         {type === "signup" ? "Sign Up" : "Sign In"}
       </button>
