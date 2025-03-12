@@ -108,6 +108,10 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
     <TrackFeedback closeAction={() => setShowFeedback(false)} trackData={createdTrack} />
   );
 
+  const style = window.getComputedStyle(document.body)
+  const accentColor = style.getPropertyValue("--col-accent");
+  const altAccentColor = style.getPropertyValue("--col-altAccent");
+
   return (
     // Track Display UI - This is shown after track creation
     <>
@@ -115,7 +119,7 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <div className="bg-gradient-to-br from-[#1e1b3b] to-[#262145] rounded-xl shadow-xl overflow-hidden">
+          <div className="bg-container rounded-xl shadow-xl overflow-hidden">
             <div className="p-6">
               {/* Track title & info */}
               <div className="mb-6">
@@ -128,8 +132,8 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
                 <AudioVisualizer
                   audioElement={audioRef.current}
                   isPlaying={isPlaying}
-                  gradientFrom="#22d3ee"
-                  gradientTo="#1d4ed8"
+                  gradientFrom={accentColor}
+                  gradientTo={altAccentColor}
                   height={300}
                 />
 
