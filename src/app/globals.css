@@ -45,6 +45,32 @@
     --col-textSecondary: #222;
 }
 
+.theme-catppuccin {
+    --col-navbar: #24273a;
+    --col-sidebar: #24273a;
+    --col-accent: #ee99a0;
+    --col-altAccent: #ed8796;
+    --col-accentContrast: #363a4f;
+    --col-background: #1e2030;
+    --col-container: #24273a;
+    --col-subContainer: #363a4f;
+    --col-textPrimary: #cad3f5;
+    --col-textSecondary: #a5adcb;
+}
+
+.theme-nord {
+    --col-navbar: #3b4252;
+    --col-sidebar: #3b4252;
+    --col-accent: #88c0d0;
+    --col-altAccent: #5e81ac;
+    --col-accentContrast: #eceff4;
+    --col-background: #2e3440;
+    --col-container: #434c5e;
+    --col-subContainer: #4c566a;
+    --col-textPrimary: #e5e9f0;
+    --col-textSecondary: #d8dee9;
+}
+
 .blue-button {
     @apply bg-gradient-to-r from-accent to-altAccent text-accentContrast font-medium py-3.5 px-6 rounded-lg hover:brightness-90 transition-all flex items-center justify-center gap-2 disabled:opacity-90 disabled:cursor-not-allowed shadow-lg
 }
