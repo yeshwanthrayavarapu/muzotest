@@ -22,21 +22,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen bg-background text-textPrimary relative pb-24 theme-yesh`}>
-        <Providers>
+      <Providers>
+        <ThemeProvider>
           <AuthProvider>
             <AudioProvider>
-              <Navbar />
-              <main>
-                {children}
-              </main>
-              <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-[#1a0b2e] to-transparent">
-                <MusicPlayer />
-              </div>
+              <body className={`${inter.className} min-h-screen bg-background text-textPrimary relative pb-24`}>
+                <Navbar />
+                <main>
+                  {children}
+                </main>
+                <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-[#1a0b2e] to-transparent">
+                  <MusicPlayer />
+                </div>
+              </body>
             </AudioProvider>
           </AuthProvider>
-        </Providers>
-      </body>
+        </ThemeProvider>
+      </Providers>
     </html>
   );
 }
