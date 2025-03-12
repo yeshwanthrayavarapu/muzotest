@@ -63,7 +63,7 @@ export default function Feedback({ questionList, attachedData, feedbackGroup }: 
           Thank you for your response!
         </div>
         <div>
-          <a href="/" className="text-blue-500 hover:text-cyan-400 transition-colors">Back to home</a>
+          <a href="/" className="text-blue-500 hover:text-accent transition-colors">Back to home</a>
         </div>
       </div>
     );

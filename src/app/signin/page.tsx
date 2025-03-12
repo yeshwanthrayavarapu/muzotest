@@ -33,15 +33,15 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12]">
-      <div className="bg-[#1e1b3b] p-8 rounded-xl shadow-xl w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-8 text-cyan-400">Sign In to MUZO</h1>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="bg-container p-8 rounded-xl shadow-xl w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center mb-8 text-accent">Sign In to MUZO</h1>
 
         {error && <p className="text-red-500 text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium mb-2">
               Email Address
             </label>
             <input
@@ -49,13 +49,13 @@ export default function SignInPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-[#2c284e] rounded-lg focus:ring-2 focus:ring-cyan-400 focus:outline-none text-white"
+              className="w-full px-4 py-3 bg-subContainer rounded-lg focus:ring-2 focus:ring-altAccent focus:outline-none text-textPrimary"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium mb-2">
               Password
             </label>
             <input
@@ -63,7 +63,7 @@ export default function SignInPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-[#2c284e] rounded-lg focus:ring-2 focus:ring-cyan-400 focus:outline-none text-white"
+              className="w-full px-4 py-3 bg-subContainer rounded-lg focus:ring-2 focus:ring-altAccent focus:outline-none text-textPrimary"
               required
             />
           </div>
@@ -82,9 +82,9 @@ export default function SignInPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-gray-400">
+        <p className="mt-6 text-center text-textSecondary">
           Don&apos;t have an account?{' '}
-          <button onClick={() => router.push('/signup')} className="text-cyan-400 hover:underline">
+          <button onClick={() => router.push('/signup')} className="text-accent hover:underline">
             Sign up
           </button>
         </p>

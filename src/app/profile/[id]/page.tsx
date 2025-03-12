@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Settings, Mail, Phone, MapPin, Globe } from 'lucide-react';
 import Link from 'next/link';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface UserProfile {
   id: string;
@@ -38,22 +39,20 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
     fetchProfile();
   }, [params.id]);
 
-  if (loading) return <div className="min-h-screen bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12] flex items-center justify-center">
-    <div className="text-white">Loading...</div>
-  </div>;
+  if (loading) return <LoadingSpinner fullScreen={true} size='large' />;
 
-  if (error) return <div className="min-h-screen bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12] flex items-center justify-center">
+  if (error) return <div className="min-h-screen flex items-center justify-center">
     <div className="text-red-500">{error}</div>
   </div>;
 
   if (!profile) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12]">
+    <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="bg-[#1e1b3b] rounded-xl overflow-hidden">
+        <div className="bg-container rounded-xl overflow-hidden">
           {/* Profile Header */}
-          <div className="relative h-48 bg-gradient-to-r from-cyan-400/20 to-blue-500/20">
+          <div className="relative h-48 bg-gradient-to-r from-altAccent/20 to-blue-500/20">
             <div className="absolute -bottom-16 left-8">
               <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#1e1b3b]">
                 <img
@@ -69,12 +68,12 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           <div className="pt-20 px-8 pb-8">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-3xl font-bold text-white">{profile.name}</h1>
-                <p className="text-gray-400 mt-4 max-w-2xl">{profile.bio}</p>
+                <h1 className="text-3xl font-bold text-textPrimary">{profile.name}</h1>
+                <p className="text-textSecondary mt-4 max-w-2xl">{profile.bio}</p>
               </div>
               <Link
                 href={`/settings/${params.id}`}
-                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-cyan-400 to-blue-500 text-black font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                className="blue-button"
               >
                 <Settings size={20} />
                 Edit Profile
@@ -83,16 +82,16 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
 
             {/* Contact Information */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex items-center gap-3 text-gray-400">
-                <Mail size={20} className="text-cyan-400" />
+              <div className="flex items-center gap-3 text-textSecondary">
+                <Mail size={20} className="text-accent" />
                 <span>{profile.email}</span>
               </div>
-              <div className="flex items-center gap-3 text-gray-400">
-                <Phone size={20} className="text-cyan-400" />
+              <div className="flex items-center gap-3 text-textSecondary">
+                <Phone size={20} className="text-accent" />
                 <span>{profile.phone}</span>
               </div>
-              <div className="flex items-center gap-3 text-gray-400">
-                <MapPin size={20} className="text-cyan-400" />
+              <div className="flex items-center gap-3 text-textSecondary">
+                <MapPin size={20} className="text-accent" />
                 <span>{profile.location}</span>
               </div>
             </div>

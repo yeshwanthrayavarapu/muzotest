@@ -9,7 +9,7 @@ interface Props {
 };
 
 export default function TrackFeedback({ closeAction, trackData }: Props) {
-  return <div className="fixed z-50 bg-[#2c284e] shadow-md top-0 right-0 p-10 min-w-[25rem] w-[50%] max-w-[50rem] overflow-y-scroll h-full">
+  return <div className="fixed z-50 bg-subContainer shadow-md top-0 right-0 p-10 min-w-[25rem] w-[50%] max-w-[50rem] overflow-y-scroll h-full">
     <button className="absolute top-4 left-4" onClick={closeAction}>
       <X size={27} />
     </button>
