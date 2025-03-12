@@ -310,7 +310,7 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
             value={theme}
           >
             {Object.values(Theme).map((theme) => (
-              <option key={theme} value={theme}>{theme}</option>
+              <option key={theme} value={theme} className="font-sans">{theme}</option>
             ))}
           </select>
         </div>
