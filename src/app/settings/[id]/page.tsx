@@ -5,6 +5,7 @@ import { User, Mail, Phone, MapPin, Camera, Loader2, Music, Calendar } from 'luc
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Theme, useTheme } from '@/contexts/ThemeContext';
 
 interface UserSettings {
   name: string;
@@ -20,7 +21,7 @@ interface UserSettings {
 export default function SettingsPage({ params }: { params: { id: string } }) {
   const { data: session, status } = useSession();
   const router = useRouter();
-  
+
   const [settings, setSettings] = useState<UserSettings>({
     name: '',
     email: '',
@@ -31,7 +32,7 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
     joinedDate: new Date().toISOString(),
     tracksCreated: 0
   });
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,12 +43,12 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
       router.push('/signin');
       return;
     }
-    
+
     if (status === 'authenticated' && session?.user?.id !== params.id) {
       router.push(`/settings/${session?.user?.id}`);
       return;
     }
-    
+
     if (status === 'authenticated' && session?.user?.id) {
       fetchUserData();
     }
@@ -57,11 +58,11 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
     try {
       setIsLoading(true);
       const response = await fetch(`/api/user/${params.id}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch user data');
       }
-      
+
       const userData = await response.json();
       setSettings(prev => ({
         ...prev,
@@ -82,7 +83,7 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       setIsSaving(true);
       const response = await fetch(`/api/user/${params.id}`, {
@@ -90,9 +91,9 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
       });
-      
+
       if (!response.ok) throw new Error('Failed to update profile');
-      
+
       setIsEditing(false);
       await fetchUserData();
     } catch (err) {
@@ -110,14 +111,14 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
     try {
       const formData = new FormData();
       formData.append('image', file);
-      
+
       const response = await fetch(`/api/upload`, {
         method: 'POST',
         body: formData,
       });
-      
+
       if (!response.ok) throw new Error('Failed to upload image');
-      
+
       const data = await response.json();
       handleChange('profileImage', data.imageUrl);
     } catch (err) {
@@ -131,6 +132,8 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
       <LoadingSpinner fullScreen={true} size='large' />
     );
   }
+
+  const { setTheme, theme } = useTheme();
 
   return (
     <div className="min-h-screen">
@@ -291,6 +294,25 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
               </div>
             )}
           </form>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <div className="bg-container rounded-xl p-8">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl gradient-text font-bold">
+              Theme Settings
+            </h1>
+          </div>
+          <select 
+            onChange={(e) => setTheme(e.target.value as Theme)}
+            className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
+            value={theme}
+          >
+            {Object.values(Theme).map((theme) => (
+              <option key={theme} value={theme}>{theme}</option>
+            ))}
+          </select>
         </div>
       </div>
     </div>
