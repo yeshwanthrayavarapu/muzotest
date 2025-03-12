@@ -8,6 +8,7 @@ export enum Theme {
   Yesh = 'yesh',
   Nord = 'nord',
   Catppuccin = 'catppuccin',
+  Everforest = 'everforest',
 }
 
 interface ThemeContextType {

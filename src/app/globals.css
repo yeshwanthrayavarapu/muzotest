@@ -45,6 +45,7 @@
     --col-textSecondary: #222;
 }
 
+/* https://catppuccin.com/ */
 .theme-catppuccin {
     --col-navbar: #24273a;
     --col-sidebar: #24273a;
@@ -58,6 +59,7 @@
     --col-textSecondary: #a5adcb;
 }
 
+/* https://www.nordtheme.com/ */
 .theme-nord {
     --col-navbar: #3b4252;
     --col-sidebar: #3b4252;
@@ -69,6 +71,20 @@
     --col-subContainer: #4c566a;
     --col-textPrimary: #e5e9f0;
     --col-textSecondary: #d8dee9;
+}
+
+/* https://github.com/sainnhe/everforest */
+.theme-everforest {
+    --col-navbar: #2D353B;
+    --col-sidebar: #2D353B;
+    --col-accent: #A7C080;
+    --col-altAccent: #A7C080;
+    --col-accentContrast: #3A515D;
+    --col-background: #232A2E;
+    --col-container: #343F44;
+    --col-subContainer: #3D484D;
+    --col-textPrimary: #D3C6AA;
+    --col-textSecondary: #859289;
 }
 
 .blue-button {
