@@ -19,7 +19,7 @@ export default function Feild(
   switch (question.type) {
     case QuestionType.Text: {
       return <textarea 
-        className="bg-gray-50 w-4/5 text-gray-900 p-2 text-sm rounded-lg"
+        className="bg-container w-4/5 text-textPrimary p-2 text-sm rounded-lg"
         onChange={(e) => changeResponse(e.target.value)} 
       />;
     }
@@ -31,7 +31,7 @@ export default function Feild(
 
       return (
         <select 
-          className="bg-gray-50 text-gray-900 p-2 rounded-lg w-fit min-w-[150px]"
+          className="bg-container text-textPrimary p-2 rounded-lg w-fit min-w-[150px]"
           onChange={(e) => changeResponse(e.target.value)}
         >
           {options.map((option) => (

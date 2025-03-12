@@ -10,12 +10,12 @@ export const Stars = memo(function ({ setStarsAction }: Props) {
 
   const col = (i: number) => {
     if (i <= stars) {
-      return "text-cyan-400";
+      return "text-accent";
     } else if (i <= hover) {
-      return "text-blue-500";
+      return "text-altAccent";
     }
 
-    return "text-gray-300";
+    return "text-subContainer";
   };
 
   return [1, 2, 3, 4, 5].map((i) => (

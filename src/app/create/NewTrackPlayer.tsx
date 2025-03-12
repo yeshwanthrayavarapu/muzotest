@@ -119,12 +119,12 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
             <div className="p-6">
               {/* Track title & info */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-white">{createdTrack.title}</h2>
-                <p className="text-gray-400 text-sm">Generated from your prompt</p>
+                <h2 className="text-xl font-semibold text-textPrimary">{createdTrack.title}</h2>
+                <p className="text-textSecondary text-sm">Generated from your prompt</p>
               </div>
 
               {/* Audio visualization */}
-              <div className="relative h-48 mb-6 bg-[#2c284e]/50 rounded-lg overflow-hidden flex items-center justify-center">
+              <div className="relative h-48 mb-6 bg-subContainer/50 rounded-lg overflow-hidden flex items-center justify-center">
                 <AudioVisualizer
                   audioElement={audioRef.current}
                   isPlaying={isPlaying}
@@ -137,7 +137,7 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
                     <button
                       onClick={togglePlayPause}
-                      className="bg-cyan-400 hover:bg-cyan-500 transition-colors text-black p-4 rounded-full shadow-xl"
+                      className="bg-accent hover:bg-altAccent transition-colors text-black p-4 rounded-full shadow-xl"
                     >
                       <Play size={24} fill="currentColor" />
                     </button>
@@ -160,7 +160,7 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
                 <div className="flex items-center gap-4">
                   <button
                     onClick={togglePlayPause}
-                    className="bg-cyan-400 hover:bg-cyan-500 transition-colors text-black p-3 rounded-full"
+                    className="bg-accent hover:bg-altAccent transition-colors text-black p-3 rounded-full"
                   >
                     {isPlaying ? <Pause size={18} /> : <Play size={18} fill="currentColor" />}
                   </button>
@@ -170,7 +170,7 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
                     <span className="text-xs text-gray-300">{formatTime(currentTime)}</span>
                     <div className="flex-1 h-1 bg-[#45417a] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-cyan-400 to-blue-600"
+                        className="h-full bg-gradient-to-r from-altAccent to-blue-600"
                         style={{
                           width: `${(currentTime / createdTrack.duration) * 100}%`
                         }}
@@ -184,25 +184,25 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
                 <div className="flex flex-wrap gap-3 mt-6">
                   <button
                     onClick={handleSaveToLibrary}
-                    className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg"
+                    className="flex-1 bg-gradient-to-r from-accent to-blue-600 text-textPrimary font-medium py-3 px-4 rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg"
                   >
                     <Save size={18} />
                     <span>Save to Library</span>
                   </button>
                   <button
                     onClick={handleDownload}
-                    className="flex items-center justify-center gap-2 py-3 px-4 border border-cyan-500/30 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-colors"
+                    className="flex items-center justify-center gap-2 py-3 px-4 border border-accent/30 text-accent rounded-lg hover:bg-altAccent/10 transition-colors"
                   >
                     <Download size={18} />
                     <span>Download</span>
                   </button>
-                  <button className="flex items-center justify-center gap-2 py-3 px-4 border border-cyan-500/30 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-colors">
+                  <button className="flex items-center justify-center gap-2 py-3 px-4 border border-accent/30 text-accent rounded-lg hover:bg-altAccent/10 transition-colors">
                     <Share2 size={18} />
                     <span>Share</span>
                   </button>
                   <button
                     onClick={() => setShowFeedback(true)}
-                    className="flex items-center justify-center gap-2 py-3 px-4 border border-cyan-500/30 text-cyan-400 rounded-lg hover:bg-cyan-500/10 transition-colors"
+                    className="flex items-center justify-center gap-2 py-3 px-4 border border-accent/30 text-accent rounded-lg hover:bg-altAccent/10 transition-colors"
                   >
                     <Megaphone size={18} />
                     <span>Provide Feedback</span>
@@ -216,47 +216,47 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
         <div className="lg:col-span-1">
           <div className="bg-gradient-to-br from-[#1e1b3b] to-[#262145] rounded-xl shadow-xl h-full">
             <div className="p-6">
-              <h3 className="text-lg font-medium text-cyan-300 mb-4">Track Details</h3>
+              <h3 className="text-lg font-medium text-accent mb-4">Track Details</h3>
 
               <div className="space-y-4 text-sm">
                 <div>
-                  <p className="text-gray-400">Generated from</p>
-                  <p className="text-white mt-1 p-3 bg-[#2c284e]/70 border border-[#45417a] rounded-lg">{createdTrack.prompt}</p>
+                  <p className="text-textSecondary">Generated from</p>
+                  <p className="text-textPrimary mt-1 p-3 bg-subContainer/70 border border-[#45417a] rounded-lg">{createdTrack.prompt}</p>
                 </div>
 
                 <div>
-                  <p className="text-gray-400">Duration</p>
-                  <p className="text-white mt-1">{formatTime(createdTrack.duration)}</p>
+                  <p className="text-textSecondary">Duration</p>
+                  <p className="text-textPrimary mt-1">{formatTime(createdTrack.duration)}</p>
                 </div>
 
                 <div>
-                  <p className="text-gray-400 mb-2">Rate this generation</p>
+                  <p className="text-textSecondary mb-2">Rate this generation</p>
                   <div className="flex items-center gap-2">
-                    <button className="p-2 rounded-full hover:bg-cyan-500/20 transition-colors">
-                      <Heart size={20} className="text-gray-400 hover:text-cyan-400" />
+                    <button className="p-2 rounded-full hover:bg-altAccent/20 transition-colors">
+                      <Heart size={20} className="text-textSecondary hover:text-accent" />
                     </button>
                     <Stars setStarsAction={(n) => rateTrack(n, createdTrack, session?.user.id)} />
                   </div>
                 </div>
 
                 <div className="pt-4 mt-4 border-t border-[#45417a]">
-                  <h4 className="font-medium text-cyan-300 mb-3">What's Next?</h4>
+                  <h4 className="font-medium text-accent mb-3">What's Next?</h4>
                   <ul className="space-y-2 text-gray-300">
                     <li className="flex items-start gap-2">
-                      <div className="rounded-full bg-cyan-500/20 p-1 mt-0.5">
-                        <Save size={12} className="text-cyan-400" />
+                      <div className="rounded-full bg-altAccent/20 p-1 mt-0.5">
+                        <Save size={12} className="text-accent" />
                       </div>
                       <span>Save to your personal library</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="rounded-full bg-cyan-500/20 p-1 mt-0.5">
-                        <Download size={12} className="text-cyan-400" />
+                      <div className="rounded-full bg-altAccent/20 p-1 mt-0.5">
+                        <Download size={12} className="text-accent" />
                       </div>
                       <span>Download for offline use</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <div className="rounded-full bg-cyan-500/20 p-1 mt-0.5">
-                        <Share2 size={12} className="text-cyan-400" />
+                      <div className="rounded-full bg-altAccent/20 p-1 mt-0.5">
+                        <Share2 size={12} className="text-accent" />
                       </div>
                       <span>Share with friends or on social media</span>
                     </li>

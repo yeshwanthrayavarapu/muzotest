@@ -37,7 +37,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
+      <span className={theme === 'dark' ? 'theme-dark' : 'theme-light'}>
+        {children}
+      </span>
     </ThemeContext.Provider>
   );
 }

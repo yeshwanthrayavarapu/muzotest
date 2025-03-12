@@ -30,7 +30,7 @@ export default function Question({
     <div className={`m-[0.7rem] flex items-center ${showWarning ? "text-red-500" : ""}`}>
       <span className="font-bold">{number}.{question.optional || "*"}</span>
       {hidden ? (
-        <span className="text-gray-600 mx-4">(not required)</span>
+        <span className="text-textSecondary mx-4">(not required)</span>
       ) : (
         <span className="mx-4">
           {question.description}

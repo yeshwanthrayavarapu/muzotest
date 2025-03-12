@@ -11,6 +11,7 @@ import { AuthGuard } from '@/components/AuthGuard';
 import type { Track } from '@/types/music';
 import CoverArt from "@/components/CoverArt";
 import { openDB } from 'idb';
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 // Modify getAudioFromCache to use IndexedDB for larger storage
 const getAudioFromCache = async (url: string): Promise<string | null> => {
@@ -91,7 +92,7 @@ export default function LibraryPage() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return <LoadingSpinner fullScreen={true} size='large' />;
   }
 
   if (error) {
@@ -119,7 +120,7 @@ export default function LibraryPage() {
               </h1>
               <button
                 onClick={() => refetch()}
-                className="p-2 rounded-full bg-[#2c284e] hover:bg-cyan-400 hover:text-black transition-colors"
+                className="p-2 rounded-full bg-container hover:bg-accent hover:text-black transition-colors"
                 aria-label="Refresh tracks"
               >
                 <RefreshCcw size={18} />
@@ -133,8 +134,8 @@ export default function LibraryPage() {
                   onClick={() => setSelectedGenre(genre as string)}
                   className={`px-4 py-2 rounded-full text-sm transition-colors ${
                     selectedGenre === genre
-                      ? 'gradient-background text-black'
-                      : 'bg-[#1e1b3b] text-white hover:bg-[#2a264d]'
+                      ? 'gradient-background text-accentContrast'
+                      : 'bg-container text-textPrimary hover:bg-subContainer'
                   }`}
                 >
                   {(genre as string).charAt(0).toUpperCase() + (genre as string).slice(1)}
@@ -147,7 +148,7 @@ export default function LibraryPage() {
             {filteredTracks.map((track: Track) => (
               <div
                 key={track.id}
-                className="bg-[#1e1b3b] rounded-xl overflow-hidden hover:bg-[#2a264d] transition-colors group"
+                className="bg-container shadow-lg rounded-xl overflow-hidden hover:bg-subContainer transition-colors group"
               >
                 <div className="flex items-center p-4">
                   <div 
@@ -156,17 +157,17 @@ export default function LibraryPage() {
                   >
                     <CoverArt track={track} height="100%" />
                     <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Play size={24} className="text-white" />
+                      <Play size={24} className="text-textPrimary" />
                     </div>
                   </div>
 
                   <div className="flex-grow">
                     <h3 className="text-xl font-semibold mb-1">{track.title}</h3>
-                    <p className="text-gray-400 text-sm">{track.description}</p>
-                    <p className="text-cyan-400 text-sm mt-1">{track.artist}</p>
+                    <p className="text-textSecondary text-sm">{track.description}</p>
+                    <p className="text-accent text-sm mt-1">{track.artist}</p>
                   </div>
 
-                  <div className="flex items-center gap-8 text-gray-400">
+                  <div className="flex items-center gap-8 text-textSecondary">
                     <div className="flex items-center gap-2">
                       <Clock size={16} />
                       <span>{track.duration}</span>
@@ -174,7 +175,7 @@ export default function LibraryPage() {
                     <a
                       href={track.audioUrl}
                       download
-                      className="p-2 rounded-full bg-[#2c284e] hover:bg-cyan-400 hover:text-black transition-colors"
+                      className="p-2 rounded-full bg-subContainer hover:bg-accent hover:text-black transition-colors"
                       aria-label="Download"
                     >
                       <Download size={18} />
