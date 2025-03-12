@@ -15,7 +15,13 @@ export class SurveyResponse {
     this.feedbackGroup = feedbackGroup ?? "default";
     this.userId = userId;
 
-    this.addDefaultResponses(questionList ?? []);
+    if (questionList) {
+      for (let question of questionList) {
+        let response = defaultResponse(question);
+        if (response === undefined) continue;
+        this.addQuestionReponse(question, response);
+      }
+    }
   }
 
   addQuestionReponse(question: QuestionData, response: QuestionResponse) {

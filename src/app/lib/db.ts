@@ -16,7 +16,11 @@ export const config = {
 const sqlPool = new sql.ConnectionPool(config);
 const poolConnect = sqlPool.connect();
 
-export type QueryParam = string | { value: any, type: sql.ISqlType, name: string };
+export type QueryParam = string | { 
+  value: any,
+  type: sql.ISqlType | sql.ISqlTypeWithLength, 
+  name: string 
+};
 
 // Create a function to handle the database connection and queries
 export async function executeQuery(query: string, params: QueryParam[] = []) {
