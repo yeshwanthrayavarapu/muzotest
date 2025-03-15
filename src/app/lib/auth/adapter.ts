@@ -1,5 +1,5 @@
 import { Adapter, AdapterUser } from "next-auth/adapters"
-import { executeQuery } from "@/app/lib/db"
+import { executeQuery } from "@/app/lib/dbClient"
 
 export function SQLServerAdapter(): Adapter {
   return {

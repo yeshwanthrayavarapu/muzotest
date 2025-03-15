@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { executeQuery } from '@/app/lib/db';
+import { executeQuery } from '@/app/lib/dbClient';
 import * as sql from 'mssql';
 import { getRandomImageUrl } from '@/app/lib/imageUtils';
 

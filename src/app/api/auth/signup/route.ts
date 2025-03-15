@@ -1,5 +1,5 @@
 import { hash } from "bcryptjs";
-import { executeQuery } from "@/app/lib/db";
+import { executeQuery } from "@/app/lib/dbClient";
 import { v4 as uuidv4 } from 'uuid';
 
 export const runtime = "nodejs"; // Add this line for compatibility

@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
-import { executeQuery } from "@/app/lib/db";
+import { executeQuery } from "@/app/lib/dbClient";
 import { SessionStrategy } from "next-auth";
 import { SQLServerAdapter } from "./adapter";
 import { AuthOptions } from "next-auth";

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import sql from 'mssql';
 import { authOptions } from '@/app/lib/auth/authOptions';
-import { executeQuery,config } from '@/app/lib/db';
+import { executeQuery,config } from '@/app/lib/dbClient';
 
 // Helper function to generate profile image
 function generateProfileImage(userId: string, name: string): string {

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { BlobServiceClient } from '@azure/storage-blob';
-import { executeQuery } from '@/app/lib/db';
+import { executeQuery } from '@/app/lib/dbClient';
 
 const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING || '');
 
