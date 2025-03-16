@@ -24,7 +24,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
-    console.log('theme', theme);
     for (const key of Object.values(Theme)) {
       document.documentElement.classList.remove(`theme-${key}`);
     }
