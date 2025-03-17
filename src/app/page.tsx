@@ -14,13 +14,13 @@ export default function HomePage() {
             </span>{' '}
             with AI
           </h1>
-          <p className="mt-6 text-lg text-gray-400">
+          <p className="mt-6 text-lg text-textSecondary">
             Create your own music with AI. Type in your description or upload your audio.
           </p>
           <div className="mt-8">
             <Link
               href="/create"
-              className="blue-button !text-black w-48"
+              className="blue-button w-48"
             >
               Get Started →
             </Link>
@@ -33,7 +33,7 @@ export default function HomePage() {
             <img
               src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80"
               alt="Music Visualization"
-              className="relative w-full max-w-lg mx-auto rounded-lg"
+              className="relative w-full max-w-lg mx-auto rounded-lg shadow-xl"
             />
           </div>
         </div>
@@ -49,27 +49,27 @@ export default function HomePage() {
         <div className="flex justify-center gap-24 flex-wrap">
           {[
             {
-              icon: <Music className="w-12 h-12 text-cyan-400" />,
+              icon: <Music className="w-12 h-12 text-accent" />,
               title: "Describe your idea",
               description: "Start by typing your description of music you like to hear."
             },
             {
-              icon: <Mic className="w-12 h-12 text-cyan-400" />,
+              icon: <Mic className="w-12 h-12 text-accent" />,
               title: "Upload Recording",
               description: "Upload your recording or song idea."
             },
             {
-              icon: <Download className="w-12 h-12 text-cyan-400" />,
+              icon: <Download className="w-12 h-12 text-accent" />,
               title: "Music Ready",
               description: "Download your fully-generated AI music in seconds."
             }
           ].map((feature, index) => (
             <div key={index} className="flex flex-col items-center text-center max-w-xs group">
-              <div className="mb-6 p-4 bg-[#1a0b2e] rounded-full transform transition-transform group-hover:scale-110">
+              <div className="mb-6 p-4 bg-container shadow-lg rounded-full transform transition-transform group-hover:scale-110">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
-              <p className="text-gray-400">{feature.description}</p>
+              <h3 className="text-xl font-semibold text-textPrimary mb-3">{feature.title}</h3>
+              <p className="text-textSecondary">{feature.description}</p>
             </div>
           ))}
         </div>

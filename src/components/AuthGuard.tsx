@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { LoadingSpinner } from './LoadingSpinner';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -15,7 +16,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [status, router]);
 
   if (status === "loading") {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return <LoadingSpinner fullScreen={true} size='large' />;
   }
 
   if (!session) {

@@ -2,72 +2,84 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Music, User, LogOut } from 'lucide-react';
+import { Music, User, LogOut, Sun, Moon } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
+import Logo from './Logo';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function Navbar() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  
+
   const handleSignOut = async () => {
     await signOut({ redirect: false });
     router.push('/');
   };
 
+  const { theme, toggleTheme } = useTheme();
+
+  const themeToggle = (
+    <button
+      onClick={toggleTheme}
+      className="p-2 rounded-full hover:bg-accent transition-colors"
+    >
+      {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+    </button>
+  );
+
   return (
-    <nav className="w-full px-12 py-5 flex justify-between items-center bg-transparent backdrop-blur-sm">
-      <Link href="/" className="text-2xl font-bold flex items-center gap-2">
-        <Music className="gradient-text" />
-        <span className="gradient-text">
-          MUZO
-        </span>
-      </Link>
+    <nav className="w-full px-12 py-5 flex justify-between items-center bg-navbar backdrop-blur-sm">
+      <Logo />
 
       <div className="flex items-center space-x-8">
-        <ul className="flex space-x-8">
-          <li>
-            <Link href="/create" className="text-white hover:text-cyan-400 transition-colors">
+        <div className="flex space-x-8 align-center">
+          <div>
+            <Link href="/create" className="text-textPrimary hover:text-accent transition-colors">
               Create
             </Link>
-          </li>
-          <li>
-            <Link href="/library" className="text-white hover:text-cyan-400 transition-colors">
+          </div>
+          <div>
+            <Link href="/library" className="text-textPrimary hover:text-accent transition-colors">
               Library
             </Link>
-          </li>
+          </div>
           {session?.user && (
-            <li>
-              <Link 
+            <div>
+              <Link
                 href={`/profile/${session.user.id}`}
-                className="text-white hover:text-cyan-400 transition-colors flex items-center gap-2"
+                className="text-textPrimary hover:text-accent transition-colors flex items-center gap-2"
               >
                 <User size={20} />
                 Profile
               </Link>
-            </li>
+            </div>
           )}
-        </ul>
+        </div>
+
+        <div>
+          {themeToggle}
+        </div>
 
         <div className="flex space-x-4">
           {status === "authenticated" ? (
             <button
               onClick={handleSignOut}
-              className="px-5 py-2 border-2 border-white text-white rounded-md hover:text-cyan-400 hover:border-cyan-400 transition-colors flex items-center gap-2"
+              className="px-5 py-2 border-2 border-accent text-textPrimary rounded-md hover:text-accent hover:border-accentContrast transition-colors flex items-center gap-2"
             >
               <LogOut size={16} />
               Sign Out
             </button>
           ) : (
             <>
-              <Link 
-                href="/signin" 
-                className="px-5 py-2 border-2 border-white text-white rounded-md hover:text-cyan-400 hover:border-cyan-400 transition-colors"
+              <Link
+                href="/signin"
+                className="px-5 py-2 border-2 border-accent text-textPrimary rounded-md hover:text-accent hover:border-accentContrast transition-colors"
               >
                 Sign In
               </Link>
-              <Link 
-                href="/signup" 
-                className="px-5 py-2 gradient-background text-black rounded-md hover:opacity-90 transition-opacity"
+              <Link
+                href="/signup"
+                className="px-5 py-2 gradient-background text-accentContrast rounded-md hover:opacity-90 transition-opacity"
               >
                 Sign Up
               </Link>

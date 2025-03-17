@@ -54,9 +54,9 @@ export function AudioInput({ onAudioCapture, disabled = false }: AudioInputProps
   };
 
   return (
-    <div className="bg-[#2c284e] p-5 rounded-lg flex gap-5 items-center">
+    <div className="bg-subContainer p-5 rounded-lg flex gap-5 items-center">
       <div>
-        <label className="text-gray-400 text-sm block mb-2">Upload Audio File</label>
+        <label className="text-textSecondary text-sm block mb-2">Upload Audio File</label>
         <input
           type="file"
           accept="audio/*"
@@ -68,7 +68,7 @@ export function AudioInput({ onAudioCapture, disabled = false }: AudioInputProps
         <button
           type="button"
           onClick={() => document.getElementById('audio-upload')?.click()}
-          className={`flex items-center gap-2 px-4 py-2 ${disabled ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#3b3159] hover:bg-cyan-400'} transition-colors rounded-lg text-white`}
+          className={`flex items-center gap-2 px-4 py-2 ${disabled ? 'bg-container cursor-not-allowed' : 'bg-altAccent hover:bg-accent'} transition-colors rounded-lg text-accentContrast`}
           disabled={disabled}
         >
           <Upload size={20} />
@@ -77,28 +77,15 @@ export function AudioInput({ onAudioCapture, disabled = false }: AudioInputProps
       </div>
 
       <div>
-        <label className="text-gray-400 text-sm block mb-2">Record Audio</label>
-        {!isRecording ? (
+        <label className="text-textSecondary text-sm block mb-2">Record Audio</label>
           <button
             type="button"
-            onClick={startRecording}
-            className="flex items-center gap-2 px-4 py-2 bg-[#3b3159] hover:bg-cyan-400 transition-colors rounded-lg text-white"
+            onClick={isRecording ? stopRecording : startRecording}
+            className="px-4 py-2 bg-altAccent hover:bg-accent transition-colors rounded-lg text-accentContrast"
           >
-            <Mic size={20} />
-            Start Recording
+            {isRecording ? 'Stop' : 'Start'} Recording
+            <p className="text-sm">{recordingStatus}</p>
           </button>
-        ) : (
-          <div className="flex flex-col gap-2">
-            <button
-              type="button"
-              onClick={stopRecording}
-              className="px-4 py-2 bg-[#7b6eff] hover:bg-cyan-400 transition-colors rounded-lg text-white"
-            >
-              Stop Recording
-            </button>
-            <p className="text-sm text-gray-400">{recordingStatus}</p>
-          </div>
-        )}
       </div>
     </div>
   );
