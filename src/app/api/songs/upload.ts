@@ -1,50 +1,41 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import { BlobServiceClient } from '@azure/storage-blob';
 import { executeQuery } from '@/app/lib/dbClient';
 
-const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING || '');
+const blobServiceClient = BlobServiceClient.fromConnectionString(
+  process.env.AZURE_STORAGE_CONNECTION_STRING || ''
+);
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+export async function POST(request: NextRequest) {
+  const formData = await request.formData();
+  const prompt = formData.get('prompt') as string;
+  const audioFile = formData.get('audioFile') as File;
+
+  if (!audioFile) {
+    return NextResponse.json({ error: 'Audio file is required' }, { status: 400 });
   }
 
   try {
-    const formData = await req.body;
-    const { prompt, audioFile } = formData;
-
-    if (!audioFile) {
-      return res.status(400).json({ error: 'Audio file is required' });
-    }
-
     const containerClient = blobServiceClient.getContainerClient('songs');
-    const blobName = `${Date.now()}-${audioFile.name}`;
+    const blobName = `${Date.now()}-${(audioFile as File).name}`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-
-    await blockBlobClient.uploadData(audioFile);
-
+    await blockBlobClient.uploadData(await audioFile.arrayBuffer());
     const audioUrl = blockBlobClient.url;
 
-    await executeQuery(`
+    await executeQuery(
+      `
         INSERT INTO Songs (title, audioUrl)
         VALUES (@title, @audioUrl)
       `,
       [
-        {
-          name: 'title',
-          value: prompt,
-          type: sql.NVarChar
-        },
-        {
-          name: 'audioUrl',
-          value: audioUrl,
-          type: sql.NVarChar
-        }, audioUrl
-      ]);
+        { name: 'title', value: prompt, type: sql.NVarChar },
+        { name: 'audioUrl', value: audioUrl, type: sql.NVarChar }
+      ]
+    );
 
-    res.status(200).json({ message: 'Song uploaded successfully', audioUrl });
+    return NextResponse.json({ message: 'Song uploaded successfully', audioUrl });
   } catch (error) {
     console.error('Error uploading song:', error);
-    res.status(500).json({ error: 'Failed to upload song' });
+    return NextResponse.json({ error: 'Failed to upload song' }, { status: 500 });
   }
 }

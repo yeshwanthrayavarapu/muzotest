@@ -2,6 +2,6 @@
   "/_not-found/page": "app/_not-found/page.js",
   "/page": "app/page.js",
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/create/page": "app/create/page.js",
-  "/signin/page": "app/signin/page.js"
+  "/profile/[id]/page": "app/profile/[id]/page.js",
+  "/api/user/[id]/route": "app/api/user/[id]/route.js"
 }
