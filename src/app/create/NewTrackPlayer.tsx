@@ -2,44 +2,25 @@
 
 import { AudioVisualizer } from "@/components/AudioVisualizer";
 import { Download, Heart, Megaphone, Pause, Play, Save, Share2 } from "lucide-react";
-import { useRef, useState } from "react";
-import { TrackData } from "./page";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from 'next/navigation';
 import TrackFeedback from "./TrackFeedback";
 import { Stars } from "@/components/Stars";
 import { SurveyResponse } from "../feedback/response";
 import { QuestionData, QuestionType } from "@/types/feedback";
 import { useSession } from "next-auth/react";
+import { useAudio } from "@/contexts/AudioContext";
+import { Track } from "@/types/music";
+import PlayButton from "@/components/PlayButton";
+import PlayerProgress from "@/components/PlayerProgress";
 
 interface Props {
-  createdTrack: TrackData;
+  createdTrack: Track;
 }
 
 export default function NewTrackPlayer({ createdTrack }: Props) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
   const router = useRouter();
   const { data: session } = useSession();
-
-  // Audio controls
-  const togglePlayPause = () => {
-    if (!audioRef.current) return;
-
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-    }
-  };
 
   const handleDownload = () => {
     if (!createdTrack?.playUrl) return;
@@ -112,6 +93,28 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
   const accentColor = style.getPropertyValue("--col-accent");
   const altAccentColor = style.getPropertyValue("--col-altAccent");
 
+  const {
+    currentTrack,
+    isPlaying,
+    volume,
+    currentTime,
+    duration,
+    togglePlay,
+    setVolume,
+    seekTo,
+    toggleShuffle,
+    isShuffling,
+    toggleRepeat,
+    isRepeating,
+    playNext,
+    playPrevious,
+    playTrack
+  } = useAudio();
+
+  useEffect(() => {
+    playTrack(createdTrack);
+  }, []);
+
   return (
     // Track Display UI - This is shown after track creation
     <>
@@ -130,18 +133,16 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
               {/* Audio visualization */}
               <div className="relative h-48 mb-6 bg-subContainer/50 rounded-lg overflow-hidden flex items-center justify-center">
                 <AudioVisualizer
-                  audioElement={audioRef.current}
-                  isPlaying={isPlaying}
                   gradientFrom={accentColor}
                   gradientTo={altAccentColor}
                   height={300}
                 />
 
                 {!isPlaying && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                  <div className="absolute inset-0 flex items-center justify-center bg-accentContrast/20 backdrop-blur-sm">
                     <button
-                      onClick={togglePlayPause}
-                      className="bg-accent hover:bg-altAccent transition-colors text-black p-4 rounded-full shadow-xl"
+                      onClick={togglePlay}
+                      className="bg-accent hover:bg-altAccent transition-colors text-accentContrast p-4 rounded-full shadow-xl"
                     >
                       <Play size={24} fill="currentColor" />
                     </button>
@@ -151,62 +152,35 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
 
               {/* Audio player controls */}
               <div className="space-y-4">
-                <audio
-                  ref={audioRef}
-                  src={createdTrack.playUrl}
-                  onTimeUpdate={handleTimeUpdate}
-                  onEnded={() => setIsPlaying(false)}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  hidden
-                />
 
                 <div className="flex items-center gap-4">
-                  <button
-                    onClick={togglePlayPause}
-                    className="bg-accent hover:bg-altAccent transition-colors text-black p-3 rounded-full"
-                  >
-                    {isPlaying ? <Pause size={18} /> : <Play size={18} fill="currentColor" />}
-                  </button>
-
-                  {/* Progress bar */}
-                  <div className="flex-1 flex items-center gap-2">
-                    <span className="text-xs text-gray-300">{formatTime(currentTime)}</span>
-                    <div className="flex-1 h-1 bg-[#45417a] rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-altAccent to-blue-600"
-                        style={{
-                          width: `${(currentTime / createdTrack.duration) * 100}%`
-                        }}
-                      ></div>
-                    </div>
-                    <span className="text-xs text-gray-300">{formatTime(createdTrack.duration)}</span>
-                  </div>
+                  <PlayButton />
+                  <PlayerProgress />
                 </div>
 
                 {/* Action buttons */}
                 <div className="flex flex-wrap gap-3 mt-6">
                   <button
                     onClick={handleSaveToLibrary}
-                    className="flex-1 bg-gradient-to-r from-accent to-blue-600 text-textPrimary font-medium py-3 px-4 rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg"
+                    className="blue-button"
                   >
                     <Save size={18} />
                     <span>Save to Library</span>
                   </button>
                   <button
                     onClick={handleDownload}
-                    className="flex items-center justify-center gap-2 py-3 px-4 border border-accent/30 text-accent rounded-lg hover:bg-altAccent/10 transition-colors"
+                    className="secondary-button !py-3"
                   >
                     <Download size={18} />
                     <span>Download</span>
                   </button>
-                  <button className="flex items-center justify-center gap-2 py-3 px-4 border border-accent/30 text-accent rounded-lg hover:bg-altAccent/10 transition-colors">
+                  <button className="secondary-button !py-3">
                     <Share2 size={18} />
                     <span>Share</span>
                   </button>
                   <button
                     onClick={() => setShowFeedback(true)}
-                    className="flex items-center justify-center gap-2 py-3 px-4 border border-accent/30 text-accent rounded-lg hover:bg-altAccent/10 transition-colors"
+                    className="secondary-button !py-3"
                   >
                     <Megaphone size={18} />
                     <span>Provide Feedback</span>
@@ -218,14 +192,14 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-gradient-to-br from-[#1e1b3b] to-[#262145] rounded-xl shadow-xl h-full">
+          <div className="bg-container rounded-xl shadow-xl h-full">
             <div className="p-6">
               <h3 className="text-lg font-medium text-accent mb-4">Track Details</h3>
 
               <div className="space-y-4 text-sm">
                 <div>
                   <p className="text-textSecondary">Generated from</p>
-                  <p className="text-textPrimary mt-1 p-3 bg-subContainer/70 border border-[#45417a] rounded-lg">{createdTrack.prompt}</p>
+                  <p className="text-textPrimary mt-1 p-3 bg-subContainer/70 border border-accent rounded-lg">{createdTrack.prompt}</p>
                 </div>
 
                 <div>
@@ -243,9 +217,9 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
                   </div>
                 </div>
 
-                <div className="pt-4 mt-4 border-t border-[#45417a]">
+                <div className="pt-4 mt-4 border-t border-accent">
                   <h4 className="font-medium text-accent mb-3">What's Next?</h4>
-                  <ul className="space-y-2 text-gray-300">
+                  <ul className="space-y-2 text-textSecondary">
                     <li className="flex items-start gap-2">
                       <div className="rounded-full bg-altAccent/20 p-1 mt-0.5">
                         <Save size={12} className="text-accent" />
@@ -281,7 +255,7 @@ const formatTime = (seconds: number) => {
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 };
 
-const rateTrack = (rating: number, trackData: TrackData, userId?: string) => {
+const rateTrack = (rating: number, trackData: Track, userId?: string) => {
   const ratingQuestion: QuestionData = {
     description: "Rating",
     type: QuestionType.Number,
