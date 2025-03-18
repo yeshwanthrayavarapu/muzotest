@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, Camera, Loader2, Music, Calendar } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Camera, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useParams, useRouter } from 'next/navigation';
 import { Theme, useTheme } from '@/contexts/ThemeContext';
 
 interface UserSettings {
@@ -14,11 +13,10 @@ interface UserSettings {
   location: string;
   bio: string;
   profileImage: string;
-  joinedDate?: string;
-  tracksCreated?: number;
 }
 
-export default function SettingsPage({ params }: { params: { id: string } }) {
+export default function SettingsPage() {
+  const { id } = useParams<{ id: string }>();
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -29,11 +27,8 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
     location: 'Sydney, Australia', // Default location
     bio: '',
     profileImage: '',
-    joinedDate: new Date().toISOString(),
-    tracksCreated: 0
   });
 
-  const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -44,20 +39,21 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
       return;
     }
 
-    if (status === 'authenticated' && session?.user?.id !== params.id) {
+    if (status === 'authenticated' && session?.user?.id !== id) {
       router.push(`/settings/${session?.user?.id}`);
       return;
     }
 
-    if (status === 'authenticated' && session?.user?.id) {
+    // Only fetch if we're authenticated and haven't loaded the user's name yet
+    if (status === 'authenticated' && session?.user?.id && !settings.name) {
       fetchUserData();
     }
-  }, [status, session, router, params.id]);
+  }, [status, session, router, id, settings.name]);
 
   const fetchUserData = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/user/${params.id}`);
+      const response = await fetch(`/api/user/${id}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch user data');
@@ -67,7 +63,6 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
       setSettings(prev => ({
         ...prev,
         ...userData,
-        joinedDate: userData.createdAt || prev.joinedDate,
       }));
     } catch (err) {
       setError('Error loading profile data');
@@ -86,7 +81,7 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
 
     try {
       setIsSaving(true);
-      const response = await fetch(`/api/user/${params.id}`, {
+      const response = await fetch(`/api/user/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
@@ -94,8 +89,10 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
 
       if (!response.ok) throw new Error('Failed to update profile');
 
-      setIsEditing(false);
-      await fetchUserData();
+      // Use the updated user from the response, no extra fetch
+      const { user } = await response.json();
+      setSettings(user);
+      router.back(); // Navigate back to the previous page after saving
     } catch (err) {
       setError('Error saving profile data');
       console.error(err);
@@ -129,7 +126,9 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
 
   if (isLoading) {
     return (
-      <LoadingSpinner fullScreen={true} size='large' />
+      <div className="min-h-screen bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12] flex justify-center items-center">
+        <Loader2 className="h-10 w-10 text-cyan-400 animate-spin" />
+      </div>
     );
   }
 
@@ -144,45 +143,19 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
             <h1 className="text-3xl gradient-text font-bold">
               Your Profile Settings
             </h1>
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="blue-button"
-            >
-              {isEditing ? 'Cancel' : 'Edit Profile'}
-            </button>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-textPrimary">
+            <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-white">
               {error}
             </div>
           )}
-
-          {/* User Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-subContainer p-4 rounded-lg">
-              <div className="flex items-center gap-2 text-accent mb-2">
-                <Calendar size={20} />
-                <span className="text-sm">Joined</span>
-              </div>
-              <p className="text-textPrimary">
-                {new Date(settings.joinedDate!).toLocaleDateString()}
-              </p>
-            </div>
-            <div className="bg-subContainer p-4 rounded-lg">
-              <div className="flex items-center gap-2 text-accent mb-2">
-                <Music size={20} />
-                <span className="text-sm">Tracks Created</span>
-              </div>
-              <p className="text-textPrimary">{settings.tracksCreated}</p>
-            </div>
-          </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Profile Image */}
             <div className="flex items-center space-x-8">
               <div className="relative">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-altAccent/20">
+                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-cyan-400/20">
                   {settings.profileImage ? (
                     <img
                       src={settings.profileImage}
@@ -190,21 +163,19 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-subContainer flex items-center justify-center">
-                      <User size={48} className="text-accent" />
+                    <div className="w-full h-full bg-accent flex items-center justify-center">
+                      <User size={48} className="text-cyan-400" />
                     </div>
                   )}
-                  {isEditing && (
-                    <label className="absolute bottom-0 right-0 p-2 bg-accent rounded-full cursor-pointer hover:bg-altAccent transition-colors">
-                      <Camera size={20} className="text-black" />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
-                  )}
+                  <label className="absolute bottom-0 right-0 p-2 bg-accent rounded-full cursor-pointer hover:bg-altAccent transition-colors">
+                    <Camera size={20} className="text-textPrimary" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                    />
+                  </label>
                 </div>
               </div>
             </div>
@@ -212,7 +183,7 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
             {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="flex items-center text-textSecondary">
+                <label className="flex items-center text-gray-400">
                   <User size={16} className="mr-2" />
                   Name
                 </label>
@@ -220,26 +191,26 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
                   type="text"
                   value={settings.name}
                   onChange={(e) => handleChange('name', e.target.value)}
-                  disabled={!isEditing}
+                  disabled={false}
                   className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center text-textSecondary">
+                <label className="flex items-center text-gray-400">
                   <Mail size={16} className="mr-2" />
                   Email
                 </label>
                 <input
                   type="email"
                   value={settings.email}
-                  disabled={true}
+                  disabled
                   className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center text-textSecondary">
+                <label className="flex items-center text-gray-400">
                   <Phone size={16} className="mr-2" />
                   Phone
                 </label>
@@ -247,14 +218,14 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
                   type="tel"
                   value={settings.phone}
                   onChange={(e) => handleChange('phone', e.target.value)}
-                  disabled={!isEditing}
+                  disabled={false}
                   placeholder="+61-12345678"
                   className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center text-textSecondary">
+                <label className="flex items-center text-gray-400">
                   <MapPin size={16} className="mr-2" />
                   Location
                 </label>
@@ -262,7 +233,7 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
                   type="text"
                   value={settings.location}
                   onChange={(e) => handleChange('location', e.target.value)}
-                  disabled={!isEditing}
+                  disabled={false}
                   placeholder="Sydney, Australia"
                   className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
                 />
@@ -270,29 +241,27 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-textSecondary">Bio</label>
+              <label className="text-gray-400">Bio</label>
               <textarea
                 value={settings.bio}
                 onChange={(e) => handleChange('bio', e.target.value)}
-                disabled={!isEditing}
+                disabled={false}
                 rows={4}
                 placeholder="Tell us about yourself..."
-                className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50 resize-none"
+                className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
               />
             </div>
 
-            {isEditing && (
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-8 py-3 bg-gradient-to-r from-altAccent to-accent text-black font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
-                >
-                  {isSaving && <LoadingSpinner />}
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            )}
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="blue-button"
+              >
+                {isSaving && <Loader2 size={16} className="animate-spin" />}
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -304,7 +273,7 @@ export default function SettingsPage({ params }: { params: { id: string } }) {
               Theme Settings
             </h1>
           </div>
-          <select 
+          <select
             onChange={(e) => setTheme(e.target.value as Theme)}
             className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
             value={theme}
