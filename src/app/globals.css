@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-    @apply theme-yesh
+    @apply theme-light
 }
 
 .theme-yesh {
