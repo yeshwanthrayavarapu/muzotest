@@ -20,9 +20,12 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(Theme.Light);
+  const [theme, setTheme] = useState<Theme | null>(null);
 
+  // On theme change
   useEffect(() => {
+    if (!theme) return;
+
     localStorage.setItem('theme', theme);
     for (const key of Object.values(Theme)) {
       document.documentElement.classList.remove(`theme-${key}`);
@@ -50,7 +53,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme: theme ?? Theme.Light, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
