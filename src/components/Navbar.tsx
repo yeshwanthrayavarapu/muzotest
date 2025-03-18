@@ -64,7 +64,7 @@ export function Navbar() {
           {status === "authenticated" ? (
             <button
               onClick={handleSignOut}
-              className="px-5 py-2 border-2 border-accent text-textPrimary rounded-md hover:text-accent hover:border-accentContrast transition-colors flex items-center gap-2"
+              className="secondary-button"
             >
               <LogOut size={16} />
               Sign Out

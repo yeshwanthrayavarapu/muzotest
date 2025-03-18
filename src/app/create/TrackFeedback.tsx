@@ -1,15 +1,15 @@
 import { QuestionType, QuestionData } from "@/types/feedback";
 import Feedback from "../feedback/Feedback";
 import { X } from "lucide-react";
-import { TrackData } from "./page";
+import { Track } from "@/types/music";
 
 interface Props {
   closeAction: () => void;
-  trackData: TrackData;
+  trackData: Track;
 };
 
 export default function TrackFeedback({ closeAction, trackData }: Props) {
-  return <div className="fixed z-50 bg-sidebar shadow-md top-0 right-0 p-10 min-w-[25rem] w-[50%] max-w-[50rem] overflow-y-scroll h-full">
+  return <div className="fixed z-50 bg-background shadow-md top-0 right-0 p-10 min-w-[25rem] w-[50%] max-w-[50rem] overflow-y-scroll h-full">
     <button className="absolute top-4 left-4" onClick={closeAction}>
       <X size={27} />
     </button>

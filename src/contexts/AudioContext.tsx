@@ -21,6 +21,8 @@ interface AudioContextType {
   isRepeating: boolean;
   playNext: () => void;
   playPrevious: () => void;
+  audioElement: HTMLAudioElement | null;
+  playerHeight: string;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -34,6 +36,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [duration, setDuration] = useState(0);
   const [isShuffling, setIsShuffling] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
+  const [playerHeight, setPlayerHeight] = useState("0px");
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -50,14 +53,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     isRepeatingRef.current = isRepeating;
   }, [isRepeating]);
 
+  const urlToPlay = (track: Track) => track.playUrl ?? track.audioUrl;
+
   const playTrack = (track: Track) => {
-    if (!audioRef?.current || audioRef.current.src !== track.audioUrl) {
+    if (!audioRef?.current || audioRef.current.src !== urlToPlay(track)) {
       destroyAudio();
 
       audioRef.current = new Audio();
       const audio = audioRef.current;
 
-      audio.src = track.audioUrl;
+      audio.src = urlToPlay(track);
       audio.volume = volume;
       audio.preload = "auto";
 
@@ -142,6 +147,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   const playPrevious = () => offsetCurrentTrack(-1);
 
+  useEffect(() => {
+    setPlayerHeight(currentTrack ? "4rem" : "0px");
+  }, [currentTrack]);
+
   const value = {
     currentTrack,
     playlist: playlist.current,
@@ -160,6 +169,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     isRepeating,
     playNext,
     playPrevious,
+    audioElement: audioRef.current,
+    playerHeight,
   };
 
   return (

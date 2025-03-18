@@ -6,16 +6,9 @@ import { AudioInput } from '@/components/AudioInput';
 import { AuthGuard } from '@/components/AuthGuard';
 import { Sidebar } from '@/components/Sidebar';
 import NewTrackPlayer from './NewTrackPlayer';
-
-export interface TrackData {
-  id: string;
-  title: string;
-  playUrl: string;
-  audioUrl: string;
-  coverImageUrl?: string;
-  duration: number;
-  prompt: string;
-}
+import { Track } from '@/types/music';
+import { getRandomImageUrl } from '../lib/imageUtils';
+import { truncate } from '@/utils';
 
 export default function CreatePage() {
   const [prompt, setPrompt] = useState('');
@@ -26,7 +19,7 @@ export default function CreatePage() {
   const [creationStep, setCreationStep] = useState(1);
 
   // New states for track display
-  const [createdTrack, setCreatedTrack] = useState<TrackData | null>(null);
+  const [createdTrack, setCreatedTrack] = useState<Track | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,18 +54,21 @@ export default function CreatePage() {
       }
 
       const data = await response.json();
-      console.log('Track created:', data);
-      
-      // In a real implementation, you would use the actual data returned from the API
-      // This is mock data for demonstration
+
+      const coverUrl = await getRandomImageUrl(prompt);
+
       setCreatedTrack({
         id: data.id || 'track-123',
-        title: prompt.trim().substring(0, 40) + '...',
+        title: truncate(prompt, 30),
         audioUrl: data.audioUrl || '/demo-track.mp3',
         playUrl: data.playUrl || '/demo-track.mp3',
-        coverImageUrl: data.coverImageUrl || '/demo-cover.jpg',
+        coverUrl,
         duration: data.duration || 180, // 3 minutes in seconds
         prompt,
+        description: prompt, // Use prompt as description
+        genre: 'AI Generated', // Default genre
+        artist: 'AI Music', // Default artist
+        createdAt: new Date().toISOString()
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create track');
@@ -111,7 +107,7 @@ export default function CreatePage() {
       >
         {isLoading ? (
           <>
-            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+            <div className="animate-spin w-5 h-5 border-2 border-accent rounded-full" />
             <span className="ml-2">Creating Your Track...</span>
           </>
         ) : (
@@ -244,7 +240,7 @@ export default function CreatePage() {
                               key={index}
                               onClick={() => insertExamplePrompt(examplePrompt)}
                               disabled={isLoading}
-                              className="w-full text-left p-3 bg-subContainer/50 border border-background hover:border-accent/50 rounded-lg text-sm text-textSecondary transition-all hover:bg-subContainer cursor-pointer"
+                              className="w-full text-left p-3 bg-subContainer/50 border border-accent hover:border-accent/50 rounded-lg text-sm text-textSecondary transition-all hover:bg-subContainer cursor-pointer"
                             >
                               {examplePrompt}
                             </button>

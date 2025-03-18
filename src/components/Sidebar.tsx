@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { Home, PlusCircle, Library, User, Settings, Megaphone } from 'lucide-react';
 import Image from 'next/image';
 import Logo from './Logo';
+import { useAudio } from '@/contexts/AudioContext';
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -16,9 +17,14 @@ export function Sidebar() {
   console.log('Session:', session);
   console.log('User ID:', session?.user?.id);
   console.log('Auth Status:', status);
+
+  const { playerHeight } = useAudio();
   
   return (
-    <div className="w-64 bg-sidebar p-6 flex flex-col h-screen fixed left-0 top-0">
+    <div 
+      className="w-64 bg-sidebar p-6 flex flex-col fixed left-0 top-0"
+      style={{ height: `calc(100vh - ${playerHeight})`, overflowY: 'auto' }}
+    >
       <div>
         <div className="mb-4">
           <Logo />

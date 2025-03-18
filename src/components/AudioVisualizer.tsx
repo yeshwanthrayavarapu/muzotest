@@ -1,28 +1,25 @@
 'use client';
 
+import { useAudio } from '@/contexts/AudioContext';
 import React, { useEffect, useRef } from 'react';
 
 interface AudioVisualizerProps {
-  audioElement: HTMLAudioElement | null;
-  isPlaying: boolean;
-  barColor?: string;
-  gradientFrom?: string;
-  gradientTo?: string;
+  gradientFrom: string;
+  gradientTo: string;
   height?: number;
 }
 
 export function AudioVisualizer({
-  audioElement,
-  isPlaying,
-  barColor = '#22d3ee',
-  gradientFrom = '#22d3ee',
-  gradientTo = '#1d4ed8',
+  gradientFrom,
+  gradientTo,
   height = 200
 }: AudioVisualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationRef = useRef<number | null>(null);
+
+  const { audioElement, isPlaying } = useAudio();
 
   useEffect(() => {
     if (!audioElement || !canvasRef.current) return;
@@ -31,9 +28,6 @@ export function AudioVisualizer({
     const cleanup = () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
       }
     };
 
@@ -64,13 +58,15 @@ export function AudioVisualizer({
       const bufferLength = analyserRef.current.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
 
+      console.log(gradientTo, gradientFrom);
+
       const drawVisualization = () => {
         animationRef.current = requestAnimationFrame(drawVisualization);
         
         analyserRef.current!.getByteFrequencyData(dataArray);
         
         canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-        canvasCtx.fillStyle = 'rgba(0, 0, 0, 0)';
+        canvasCtx.fillStyle = "transparent";
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
         
         const barWidth = (canvas.width / bufferLength) * 2.5;
@@ -78,7 +74,8 @@ export function AudioVisualizer({
         let x = 0;
         
         for (let i = 0; i < bufferLength; i++) {
-          barHeight = dataArray[i] / 2;
+          // Bias higher frequencies to account for lack of log scaled FFT
+          barHeight = (dataArray[i] / 2) * (1 + (i / bufferLength));
           
           if (isPlaying) {
             // Create gradient effect when playing
@@ -88,7 +85,7 @@ export function AudioVisualizer({
             canvasCtx.fillStyle = gradient;
           } else {
             // Dimmed color when not playing
-            canvasCtx.fillStyle = `${barColor}50`; // 50 is hex for 30% opacity
+            canvasCtx.fillStyle = `${gradientFrom}50`; // 50 is hex for 30% opacity
           }
           
           canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
@@ -103,7 +100,7 @@ export function AudioVisualizer({
     draw();
     
     return cleanup;
-  }, [audioElement, isPlaying, barColor, gradientFrom, gradientTo]);
+  }, [audioElement, isPlaying, gradientFrom, gradientTo]);
 
   return (
     <canvas 

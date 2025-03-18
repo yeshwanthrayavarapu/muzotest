@@ -16,29 +16,27 @@ import {
 } from 'lucide-react';
 import { useAudio } from '@/contexts/AudioContext';
 import CoverArt from './CoverArt';
+import PlayButton from './PlayButton';
+import PlayerProgress from './PlayerProgress';
 
 export function MusicPlayer() {
   const {
     currentTrack,
-    isPlaying,
     volume,
-    currentTime,
-    duration,
     togglePlay,
     setVolume,
-    seekTo,
     toggleShuffle,
     isShuffling,
     toggleRepeat,
     isRepeating,
     playNext,
     playPrevious,
+    playerHeight,
   } = useAudio();
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [prevVolume, setPrevVolume] = useState(volume);
-  const progressRef = useRef<HTMLDivElement>(null);
 
   // Spacebar to toggle play/pause
   useEffect(() => {
@@ -64,27 +62,11 @@ export function MusicPlayer() {
     setIsMuted(!isMuted);
   };
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!progressRef.current) return;
-
-    const rect = progressRef.current.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    seekTo(percent * duration);
-  };
-
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
   if (!currentTrack) return null;
 
   return (
     <div
-      className={`fixed bottom-0 left-0 right-0 bg-container shadow-lg transition-all duration-300 ${
-        isExpanded ? 'h-fit' : 'h-20'
-        }`}
+      className={`fixed bottom-0 left-0 right-0 bg-container shadow-lg transition-all duration-300 ${playerHeight}`}
     >
       <div className="max-w-7xl mx-auto px-4 h-full">
         {/* Main Player Controls */}
@@ -115,12 +97,7 @@ export function MusicPlayer() {
               >
                 <SkipBack size={24} />
               </button>
-              <button
-                onClick={togglePlay}
-                className="w-10 h-10 rounded-full bg-accent flex items-center justify-center hover:bg-altAccent transition-colors"
-              >
-                {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-              </button>
+              <PlayButton />
               <button
                 onClick={playNext}
                 className="text-textSecondary hover:text-accent transition-colors"
@@ -135,35 +112,7 @@ export function MusicPlayer() {
               </button>
             </div>
 
-            {/* Progress Bar */}
-            {!duration
-              // Loading state
-              ? <div className="w-full mt-2 flex items-center space-x-2 text-xs text-textSecondary bg-background h-1 rounded-full animate-pulse"></div>
-              // Playing state
-              : (
-                <div className="w-full mt-2 flex items-center space-x-2 text-xs text-textSecondary">
-                  <span className="w-[1.6rem]">{formatTime(currentTime)}</span>
-                  <div
-                    ref={progressRef}
-                    className="flex-1 h-1 bg-background rounded-full cursor-pointer"
-                    onClick={handleProgressClick}
-                  >
-                    <div
-                      className="h-full bg-accent rounded-full relative"
-                      style={{ width: `${(currentTime / duration) * 100}%` }}
-                    >
-                    </div>
-                    <div
-                      className="h-full relative mx-[0.365rem] transform translate-y-[-100%]"
-                      style={{ width: `${(currentTime / duration) * 100}%` }}
-                    >
-                      <div className="absolute right-0 top-1/2 transform translate-y-[-50%] translate-x-[0.73rem]] w-3 h-3 bg-white rounded-full shadow-lg"></div>
-                    </div>
-                  </div>
-                  <span>{formatTime(duration)}</span>
-                </div>
-              )
-            }
+            <PlayerProgress />
           </div>
 
           {/* Volume and Expand Controls */}
