@@ -12,6 +12,7 @@ import type { Track } from '@/types/music';
 import CoverArt from "@/components/CoverArt";
 import { openDB } from 'idb';
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { formatTime } from "@/utils";
 
 // Modify getAudioFromCache to use IndexedDB for larger storage
 const getAudioFromCache = async (url: string): Promise<string | null> => {
@@ -38,8 +39,6 @@ const getAudioFromCache = async (url: string): Promise<string | null> => {
 
 export default function LibraryPage() {
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
-  const { data: session } = useSession();
-  const router = useRouter();
   const { playTrack, playlist } = useAudio();
 
   const { data: tracks = [], isLoading, error, refetch } = useQuery({
@@ -170,7 +169,7 @@ export default function LibraryPage() {
                   <div className="flex items-center gap-8 text-textSecondary">
                     <div className="flex items-center gap-2">
                       <Clock size={16} />
-                      <span>{track.duration}</span>
+                      <span>{formatTime(track.duration)}</span>
                     </div>
                     <a
                       href={track.audioUrl}

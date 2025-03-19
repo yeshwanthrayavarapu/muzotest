@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth/authOptions';
 import { getRandomImageUrl } from '@/app/lib/imageUtils';
 import { Track } from '@/types/music';
+import { truncate } from '@/utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     const track = await request.json() as Track;
     
     // Generate a cover image URL based on the prompt
-    const coverUrl = await getRandomImageUrl(track.prompt || track.title);
+    // const coverUrl = await getRandomImageUrl(track.prompt || track.title);
 
     // Store track in database
     await executeQuery(`
@@ -37,13 +38,13 @@ export async function POST(request: NextRequest) {
     `, [
       { name: 'id', value: track.id, type: sql.VarChar(255) },
       { name: 'title', value: track.title, type: sql.VarChar(255) },
-      { name: 'desc', value: track.description, type: sql.VarChar(500) },
+      { name: 'desc', value: truncate(track.description, 300), type: sql.VarChar(500) },
       { name: 'genre', value: track.genre, type: sql.VarChar(50) },
       { name: 'duration', value: track.duration, type: sql.VarChar(10) },
       { name: 'artist', value: track.artist, type: sql.VarChar(100) },
       { name: 'coverUrl', value: track.coverUrl, type: sql.VarChar(255) },
       { name: 'audioUrl', value: track.audioUrl, type: sql.VarChar(255) },
-      { name: 'prompt', value: track.prompt, type: sql.VarChar(500) },
+      { name: 'prompt', value: truncate(track.prompt, 300), type: sql.VarChar(500) },
       { name: 'createdAt', value: track.createdAt, type: sql.DateTime() },
       { name: 'userId', value: userId, type: sql.VarChar(36) }
     ]);

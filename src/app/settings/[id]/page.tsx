@@ -5,6 +5,7 @@ import { User, Mail, Phone, MapPin, Camera, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import { Theme, useTheme } from '@/contexts/ThemeContext';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface UserSettings {
   name: string;
@@ -20,6 +21,11 @@ export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+  const { setTheme, theme } = useTheme();
+
   const [settings, setSettings] = useState<UserSettings>({
     name: '',
     email: '',
@@ -28,10 +34,6 @@ export default function SettingsPage() {
     bio: '',
     profileImage: '',
   });
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -126,13 +128,9 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1a0b2e] to-[#0a0d12] flex justify-center items-center">
-        <Loader2 className="h-10 w-10 text-cyan-400 animate-spin" />
-      </div>
+      <LoadingSpinner fullScreen={true} size="large" />
     );
   }
-
-  const { setTheme, theme } = useTheme();
 
   return (
     <div className="min-h-screen">
