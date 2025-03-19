@@ -63,6 +63,8 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
     if (!createdTrack) return;
 
     try {
+      createdTrack.playUrl = undefined;
+
       const response = await fetch('/api/tracks/save', {
         method: 'POST',
         headers: {
@@ -94,20 +96,8 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
   const altAccentColor = style.getPropertyValue("--col-altAccent");
 
   const {
-    currentTrack,
     isPlaying,
-    volume,
-    currentTime,
-    duration,
     togglePlay,
-    setVolume,
-    seekTo,
-    toggleShuffle,
-    isShuffling,
-    toggleRepeat,
-    isRepeating,
-    playNext,
-    playPrevious,
     playTrack
   } = useAudio();
 
