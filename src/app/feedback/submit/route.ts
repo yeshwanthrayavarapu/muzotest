@@ -1,5 +1,3 @@
-import { SurveyResponse } from "../response";
-
 export async function POST(request: Request) {
   const error = (message: string) =>
     new Response(message, {
@@ -8,6 +6,10 @@ export async function POST(request: Request) {
 
   try {
     const submission = await request.json();
+
+    if (submission.attachedData) {
+      submission.attachedData.playUrl = undefined;
+    }
 
     if (!submission.time) return error("Invalid submission time");
 
