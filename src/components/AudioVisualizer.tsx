@@ -17,12 +17,18 @@ export function AudioVisualizer({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioSrcRef = useRef<string | null>(null);
   const animationRef = useRef<number | null>(null);
 
   const { audioElement, isPlaying } = useAudio();
 
   useEffect(() => {
     if (!audioElement || !canvasRef.current) return;
+
+    const src = audioElement.src;
+
+    if (audioSrcRef.current === src) return;
+    audioSrcRef.current = src;
 
     // Cleanup function to handle unmounting
     const cleanup = () => {
@@ -34,6 +40,7 @@ export function AudioVisualizer({
     // Setup audio context and analyzer only once
     if (!audioContextRef.current) {
       try {
+
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
         analyserRef.current = audioContextRef.current.createAnalyser();
         analyserRef.current.fftSize = 256;
@@ -69,7 +76,7 @@ export function AudioVisualizer({
         canvasCtx.fillStyle = "transparent";
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
         
-        const barWidth = (canvas.width / bufferLength) * 2.5;
+        const barWidth = Math.max(1, ((canvas.width / bufferLength) * 2.5));
         let barHeight;
         let x = 0;
         
@@ -87,9 +94,9 @@ export function AudioVisualizer({
             // Dimmed color when not playing
             canvasCtx.fillStyle = `${gradientFrom}50`; // 50 is hex for 30% opacity
           }
-          
-          canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-          
+
+          const y = canvas.height - barHeight;
+          canvasCtx.fillRect(x, y, barWidth, barHeight);
           x += barWidth + 1;
         }
       };

@@ -14,10 +14,6 @@ export function Sidebar() {
   
   const isActive = (path: string) => pathname === path;
   
-  console.log('Session:', session);
-  console.log('User ID:', session?.user?.id);
-  console.log('Auth Status:', status);
-
   const { playerHeight } = useAudio();
   
   return (

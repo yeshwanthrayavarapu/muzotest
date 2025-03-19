@@ -34,7 +34,6 @@ export function MusicPlayer() {
     playerHeight,
   } = useAudio();
 
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [prevVolume, setPrevVolume] = useState(volume);
 
@@ -134,30 +133,8 @@ export function MusicPlayer() {
                 className="w-24 accent-accent"
               />
             </div>
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="text-textSecondary hover:text-accent transition-colors"
-            >
-              {isExpanded ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
-            </button>
           </div>
         </div>
-
-        {/* Expanded View */}
-        {isExpanded && (
-          <div className="h-[calc(100%-1rem)] p-6 flex items-center justify-center">
-            <div className="text-center">
-              <div className="relative mx-auto mb-6 w-48">
-                <CoverArt track={currentTrack} height="12rem" />
-              </div>
-              <h2 className="text-2xl font-bold text-textPrimary mb-2">{currentTrack.title}</h2>
-              <p className="text-textSecondary mb-6">{currentTrack.artist}</p>
-              <button className="text-textSecondary hover:text-accent transition-colors">
-                <Heart size={24} />
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

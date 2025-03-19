@@ -200,9 +200,6 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
                 <div>
                   <p className="text-textSecondary mb-2">Rate this generation</p>
                   <div className="flex items-center gap-2">
-                    <button className="p-2 rounded-full hover:bg-altAccent/20 transition-colors">
-                      <Heart size={20} className="text-textSecondary hover:text-accent" />
-                    </button>
                     <Stars setStarsAction={(n) => rateTrack(n, createdTrack, session?.user.id)} />
                   </div>
                 </div>
