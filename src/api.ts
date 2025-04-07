@@ -2,7 +2,9 @@ import { AuthDto, SignUpRequestDto, LoginResponseDto } from '../shared/dto';
 import { User } from '../shared/user';
 import { Session } from './contexts/AuthContext';
 
-const ENDPOINT = 'http://localhost:3001';
+const ENDPOINT = process.env.NEXT_PUBLIC_BACKEND_ENDPOINT;
+if (!ENDPOINT) throw new Error('BACKEND_ENDPOINT is not defined');
+
 
 export class ApiError {
     public readonly message: string;
