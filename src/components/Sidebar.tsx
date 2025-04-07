@@ -2,15 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { Home, PlusCircle, Library, User, Settings, Megaphone } from 'lucide-react';
-import Image from 'next/image';
 import Logo from './Logo';
 import { useAudio } from '@/contexts/AudioContext';
+import { useAuth } from '@/contexts/AuthContext';
+import Avatar from './Avatar';
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { session, user } = useAuth();
   
   const isActive = (path: string) => pathname === path;
   
@@ -58,36 +58,23 @@ export function Sidebar() {
       </div>
 
       {/* Profile Section at Bottom */}
-      {session?.user?.id ? (
+      {user !== undefined && (
         <div className="mt-auto pt-6 border-t border-gray-800">
           <Link
-            href={`/profile/${session.user.id}`}
+            href={`/profile?u=${user.uuid}`}
             className={`flex items-center space-x-3 p-2 rounded-lg transition-colors ${
               pathname.startsWith('/profile') ? 'text-accent bg-subContainer' : 'text-textPrimary hover:text-accent'
             }`}
           >
             <div className="relative w-8 h-8 rounded-full overflow-hidden">
-              {session.user.image ? (
-                <Image
-                  src={session.user.image}
-                  alt="Profile"
-                  width={32}
-                  height={32}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-background flex items-center justify-center">
-                  <User size={16} className="text-textSecondary" />
-                </div>
-              )}
+              <Avatar user={user} size="32" />
             </div>
             <div className="flex-1">
-              <p className="font-medium">{session.user.name || 'User'}</p>
-              <p className="text-sm text-textSecondary">@{session.user.email?.split('@')[0] || 'user'}</p>
+              <p className="font-medium">{user.details?.name || user.username}</p>
             </div>
           </Link>
           <Link
-            href={status === 'authenticated' && session.user.id ? `/settings/${session.user.id}` : '/signin'}
+            href="/settings"
             className={`flex items-center space-x-3 p-2 mt-2 transition-colors ${
               pathname.startsWith('/settings') ? 'text-accent bg-subContainer' : 'text-textPrimary hover:text-accent'
             }`}
@@ -105,7 +92,7 @@ export function Sidebar() {
             <span>Provide Feedback</span>
           </Link>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

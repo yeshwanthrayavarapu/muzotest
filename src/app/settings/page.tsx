@@ -2,104 +2,65 @@
 
 import { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Camera, Loader2 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import { Theme, useTheme } from '@/contexts/ThemeContext';
+import { AuthStatus, useAuth } from '@/contexts/AuthContext';
+import { authedPost } from '@/api';
+import { UserDetails } from '../../../shared/user';
+import Avatar from '@/components/Avatar';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-
-interface UserSettings {
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  bio: string;
-  profileImage: string;
-}
+import ErrorMessage from '@/components/ErrorMessage';
 
 export default function SettingsPage() {
   const { id } = useParams<{ id: string }>();
-  const { data: session, status } = useSession();
+
+  const { session, status, user, refetchUser } = useAuth();
+
   const router = useRouter();
 
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const { setTheme, theme } = useTheme();
 
-  const [settings, setSettings] = useState<UserSettings>({
+  const [settings, setSettings] = useState<UserDetails>(user?.details || {
     name: '',
     email: '',
-    phone: '+61-12345678', // Default Australian number
-    location: 'Sydney, Australia', // Default location
+    phone: '',
+    location:  '',
     bio: '',
     profileImage: '',
   });
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (status === AuthStatus.LoggedOut) {
       router.push('/signin');
       return;
     }
-
-    if (status === 'authenticated' && session?.user?.id !== id) {
-      router.push(`/settings/${session?.user?.id}`);
-      return;
-    }
-
-    // Only fetch if we're authenticated and haven't loaded the user's name yet
-    if (status === 'authenticated' && session?.user?.id && !settings.name) {
-      fetchUserData();
-    }
   }, [status, session, router, id, settings.name]);
 
-  const fetchUserData = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/user/${id}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data');
-      }
-
-      const userData = await response.json();
-      setSettings(prev => ({
-        ...prev,
-        ...userData,
-      }));
-    } catch (err) {
-      setError('Error loading profile data');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (field: keyof UserSettings, value: string) => {
+  const handleChange = (field: keyof UserDetails, value: string) => {
     setSettings(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isSaving || !session) return;
+
     try {
       setIsSaving(true);
-      const response = await fetch(`/api/user/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
-      });
 
+      console.log('settings', settings);
+      const response = await authedPost('/users/update', session, settings);
       if (!response.ok) throw new Error('Failed to update profile');
 
-      // Use the updated user from the response, no extra fetch
-      const { user } = await response.json();
-      setSettings(user);
       router.back(); // Navigate back to the previous page after saving
     } catch (err) {
       setError('Error saving profile data');
       console.error(err);
     } finally {
       setIsSaving(false);
+      refetchUser();
     }
   };
 
@@ -126,10 +87,8 @@ export default function SettingsPage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <LoadingSpinner fullScreen={true} size="large" />
-    );
+  if (!session || !user) {
+    return <LoadingSpinner fullScreen={true} />;
   }
 
   return (
@@ -139,32 +98,18 @@ export default function SettingsPage() {
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl gradient-text font-bold">
-              Your Profile Settings
+              Profile Settings
             </h1>
           </div>
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-white">
-              {error}
-            </div>
-          )}
+          <ErrorMessage message={error} />
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Profile Image */}
             <div className="flex items-center space-x-8">
               <div className="relative">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-cyan-400/20">
-                  {settings.profileImage ? (
-                    <img
-                      src={settings.profileImage}
-                      alt={settings.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-accent flex items-center justify-center">
-                      <User size={48} className="text-cyan-400" />
-                    </div>
-                  )}
+                <div className="w-32 h-32">
+                  <Avatar user={user} size={128} />
                   <label className="absolute bottom-0 right-0 p-2 bg-accent rounded-full cursor-pointer hover:bg-altAccent transition-colors">
                     <Camera size={20} className="text-textPrimary" />
                     <input
@@ -181,7 +126,7 @@ export default function SettingsPage() {
             {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="flex items-center text-gray-400">
+                <label className="flex items-center text-subtext">
                   <User size={16} className="mr-2" />
                   Name
                 </label>
@@ -190,12 +135,11 @@ export default function SettingsPage() {
                   value={settings.name}
                   onChange={(e) => handleChange('name', e.target.value)}
                   disabled={false}
-                  className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center text-gray-400">
+                <label className="flex items-center text-subtext">
                   <Mail size={16} className="mr-2" />
                   Email
                 </label>
@@ -203,12 +147,11 @@ export default function SettingsPage() {
                   type="email"
                   value={settings.email}
                   disabled
-                  className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center text-gray-400">
+                <label className="flex items-center text-subtext">
                   <Phone size={16} className="mr-2" />
                   Phone
                 </label>
@@ -218,12 +161,11 @@ export default function SettingsPage() {
                   onChange={(e) => handleChange('phone', e.target.value)}
                   disabled={false}
                   placeholder="+61-12345678"
-                  className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="flex items-center text-gray-400">
+                <label className="flex items-center text-subtext">
                   <MapPin size={16} className="mr-2" />
                   Location
                 </label>
@@ -233,20 +175,18 @@ export default function SettingsPage() {
                   onChange={(e) => handleChange('location', e.target.value)}
                   disabled={false}
                   placeholder="Sydney, Australia"
-                  className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-gray-400">Bio</label>
+              <label className="text-subtext">Bio</label>
               <textarea
                 value={settings.bio}
                 onChange={(e) => handleChange('bio', e.target.value)}
                 disabled={false}
                 rows={4}
                 placeholder="Tell us about yourself..."
-                className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
               />
             </div>
 
@@ -273,7 +213,6 @@ export default function SettingsPage() {
           </div>
           <select
             onChange={(e) => setTheme(e.target.value as Theme)}
-            className="w-full px-4 py-2 bg-subContainer rounded-lg border border-background text-textPrimary disabled:opacity-50"
             value={theme}
           >
             {Object.values(Theme).map((theme) => (

@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play, Download, Clock, Heart, RefreshCcw } from "lucide-react";
-import { useSession } from 'next-auth/react';
+import { Play, Download, Clock, RefreshCcw, Trash } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Sidebar } from '@/components/Sidebar';
 import { useAudio } from '@/contexts/AudioContext';
 import { AuthGuard } from '@/components/AuthGuard';
-import type { Track } from '@/types/music';
 import CoverArt from "@/components/CoverArt";
 import { openDB } from 'idb';
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { formatTime } from "@/utils";
+import { authedPost, authedRequest } from "@/api";
+import { AuthStatus, useAuth } from "@/contexts/AuthContext";
+import { Track } from "../../../shared/track";
+import { TrackListDto } from "../../../shared/dto";
 
 // Modify getAudioFromCache to use IndexedDB for larger storage
 const getAudioFromCache = async (url: string): Promise<string | null> => {
@@ -40,16 +42,30 @@ const getAudioFromCache = async (url: string): Promise<string | null> => {
 export default function LibraryPage() {
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
   const { playTrack, playlist } = useAudio();
+  const router = useRouter();
+
+  const { session, status } = useAuth();
+
+  useEffect(() => {
+    if (status === AuthStatus.LoggedOut) {
+      router.push('/signin');
+    }
+  }, [session]);
 
   const { data: tracks = [], isLoading, error, refetch } = useQuery({
     queryKey: ['tracks'],
     queryFn: async () => {
       // Always fetch fresh data from API
-      const response = await fetch("/api/tracks");
-      if (!response.ok) throw new Error("Failed to fetch tracks");
-      const data = await response.json();
+      
+      if (!session) return [];
 
-      return data.map((track: Track) => ({
+      const response = await authedRequest('/tracks/list', session);
+      if (!response.ok) throw new Error("Failed to fetch tracks");
+      const data: TrackListDto = await response.json();
+
+      console.log('Fetched tracks:', data.tracks);
+
+      return data.tracks.map((track: Track) => ({
         ...track,
         audioUrl: track.audioUrl.includes('blob.core.windows.net') 
           ? `/api/proxy-audio?blob=${encodeURIComponent(track.audioUrl)}`
@@ -98,11 +114,19 @@ export default function LibraryPage() {
     return <div className="flex items-center justify-center min-h-screen">Error loading tracks</div>;
   }
 
-  const genres = ['all', ...Array.from(new Set(tracks.map((track: Track) => track.genre)))];
+  const genres = ['all', ...Array.from(new Set(tracks.map((track: Track) => track.metadata?.genre)))];
   
   const filteredTracks = selectedGenre === 'all' 
     ? tracks 
-    : tracks.filter((track: Track) => track.genre === selectedGenre);
+    : tracks.filter((track: Track) => track.metadata?.genre === selectedGenre);
+
+  if (!session) return null;
+
+  const deleteTrack = async (track: Track) => {
+    if (!confirm(`Are you sure you want to delete "${track.metadata?.title ?? "this track"}"?`)) return;
+    await authedPost('/tracks/delete', session, track);
+    refetch();
+  }
 
   return (
     <AuthGuard>
@@ -155,30 +179,39 @@ export default function LibraryPage() {
                     onClick={() => handlePlayTrack(track)}
                   >
                     <CoverArt track={track} height="100%" />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute inset-0 bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <Play size={24} className="text-textPrimary" />
                     </div>
                   </div>
 
                   <div className="flex-grow">
-                    <h3 className="text-xl font-semibold mb-1">{track.title}</h3>
-                    <p className="text-textSecondary text-sm">{track.description}</p>
-                    <p className="text-accent text-sm mt-1">{track.artist}</p>
+                    <h3 className="text-xl font-semibold mb-1">{track.metadata?.title}</h3>
+                    <p className="text-textSecondary text-sm">{track.metadata?.description}</p>
+                    <p className="text-accent text-sm mt-1">{track.metadata?.artist}</p>
                   </div>
 
-                  <div className="flex items-center gap-8 text-textSecondary">
+                  <div className="flex items-center gap-4 text-textSecondary">
                     <div className="flex items-center gap-2">
                       <Clock size={16} />
                       <span>{formatTime(track.duration)}</span>
                     </div>
-                    <a
-                      href={track.audioUrl}
-                      download
-                      className="p-2 rounded-full bg-subContainer hover:bg-accent hover:text-black transition-colors"
-                      aria-label="Download"
-                    >
-                      <Download size={18} />
-                    </a>
+                    <div className="flex gap-2 flex-col">
+                      <a
+                        href={track.audioUrl}
+                        download
+                        className="cursor-pointer p-2 rounded-full bg-subContainer hover:bg-accent hover:text-black transition-colors"
+                        aria-label="Download"
+                      >
+                        <Download size={18} />
+                      </a>
+                      <a
+                        onClick={() => deleteTrack(track)}
+                        className="cursor-pointer p-2 rounded-full bg-subContainer hover:bg-accent hover:text-black transition-colors"
+                        aria-label="Delete"
+                      >
+                        <Trash size={18} />
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>

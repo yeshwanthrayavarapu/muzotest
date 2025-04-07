@@ -3,16 +3,18 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Music, User, LogOut, Sun, Moon } from 'lucide-react';
-import { useSession, signOut } from 'next-auth/react';
 import Logo from './Logo';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function Navbar() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { session, logout, user } = useAuth();
 
   const handleSignOut = async () => {
-    await signOut({ redirect: false });
+    logout();
+    
+    // await signOut({ redirect: false });
     router.push('/');
   };
 
@@ -43,10 +45,10 @@ export function Navbar() {
               Library
             </Link>
           </div>
-          {session?.user && (
+          {session !== undefined && (
             <div>
               <Link
-                href={`/profile/${session.user.id}`}
+                href={`/profile?u=${user?.uuid}`}
                 className="text-textPrimary hover:text-accent transition-colors flex items-center gap-2"
               >
                 <User size={20} />
@@ -61,7 +63,7 @@ export function Navbar() {
         </div>
 
         <div className="flex space-x-4">
-          {status === "authenticated" ? (
+          {session !== undefined ? (
             <button
               onClick={handleSignOut}
               className="secondary-button"

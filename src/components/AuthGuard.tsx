@@ -1,26 +1,23 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { LoadingSpinner } from './LoadingSpinner';
+import { AuthStatus, useAuth } from '@/contexts/AuthContext';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
   const router = useRouter();
 
+  const { status } = useAuth();
+
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (status === AuthStatus.LoggedOut) {
       router.push('/signin');
     }
   }, [status, router]);
 
-  if (status === "loading") {
+  if (status === AuthStatus.Loading) {
     return <LoadingSpinner fullScreen={true} size='large' />;
-  }
-
-  if (!session) {
-    return null;
   }
 
   return <>{children}</>;

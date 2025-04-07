@@ -1,19 +1,15 @@
-import type { Metadata } from 'next';
+"use client";
+
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
-import { AuthProvider } from '@/components/SessionProvider';
 import { AudioProvider } from '@/contexts/AudioContext';
 import { MusicPlayer } from '@/components/MusicPlayer';
 import { Providers } from './providers';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'MUZO - AI Music Creation',
-  description: 'Create music with AI',
-};
 
 export default function RootLayout({
   children,

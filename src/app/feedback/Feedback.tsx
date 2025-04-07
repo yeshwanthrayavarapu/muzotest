@@ -4,7 +4,7 @@ import { SurveyResponse } from "./response";
 import { useRef, useState } from "react";
 import { QuestionData } from "@/types/feedback";
 import Question from "./Question";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   questionList: QuestionData[];
@@ -17,14 +17,13 @@ export default function Feedback({ questionList, attachedData, feedbackGroup }: 
   const [error, setError] = useState<string | null>(null);
   const [unansweredQuestionWarnings, setUnansweredQuestionWarnings] = useState<string[]>([]);
 
-  const { data: session } = useSession();
+  const { session } = useAuth();
 
   const response = useRef(
     new SurveyResponse(
       questionList,
       attachedData,
       feedbackGroup,
-      session?.user.id
     )
   );
 
@@ -35,6 +34,8 @@ export default function Feedback({ questionList, attachedData, feedbackGroup }: 
   };
 
   const submit = async (surveyResponse: SurveyResponse) => {
+    if (!session) return;
+
     const missingQuestions = surveyResponse.missingNonOptionalQuestions(questionList);
     if (missingQuestions.length > 0) {
       setUnansweredQuestionWarnings(missingQuestions);
@@ -45,7 +46,7 @@ export default function Feedback({ questionList, attachedData, feedbackGroup }: 
     surveyResponse.addDefaultResponses(questionList);
     surveyResponse.removeHiddenResponses(questionList);
 
-    const response = await surveyResponse.submit();
+    const response = await surveyResponse.submit(session);
 
     if (!response.ok) {
       setError(await response.text());

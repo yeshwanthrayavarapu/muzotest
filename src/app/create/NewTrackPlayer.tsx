@@ -8,11 +8,12 @@ import TrackFeedback from "./TrackFeedback";
 import { Stars } from "@/components/Stars";
 import { SurveyResponse } from "../feedback/response";
 import { QuestionData, QuestionType } from "@/types/feedback";
-import { useSession } from "next-auth/react";
 import { useAudio } from "@/contexts/AudioContext";
-import { Track } from "@/types/music";
 import PlayButton from "@/components/PlayButton";
 import PlayerProgress from "@/components/PlayerProgress";
+import { Track } from "../../../shared/track";
+import { authedPost } from "@/api";
+import { Session, useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   createdTrack: Track;
@@ -20,7 +21,10 @@ interface Props {
 
 export default function NewTrackPlayer({ createdTrack }: Props) {
   const router = useRouter();
-  const { data: session } = useSession();
+
+  const { session } = useAuth();
+
+  const userId = ""; // TODO
 
   const handleDownload = () => {
     if (!createdTrack?.playUrl) return;
@@ -50,7 +54,7 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${createdTrack.title}.wav`;
+    link.download = `${createdTrack.metadata?.title ?? "untitled"}.wav`;
 
     // Trigger download
     document.body.appendChild(link);
@@ -60,18 +64,12 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
   };
 
   const handleSaveToLibrary = async () => {
-    if (!createdTrack) return;
+    if (!createdTrack || !session) return;
 
     try {
-      createdTrack.playUrl = undefined;
+      delete createdTrack.playUrl;
 
-      const response = await fetch('/api/tracks/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(createdTrack),
-      });
+      const response = await authedPost('/tracks/save', session, createdTrack);
 
       if (!response.ok) {
         throw new Error('Failed to save track');
@@ -105,6 +103,8 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
     playTrack(createdTrack);
   }, []);
 
+  if (!session) return null;
+
   return (
     // Track Display UI - This is shown after track creation
     <>
@@ -116,7 +116,7 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
             <div className="p-6">
               {/* Track title & info */}
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-textPrimary">{createdTrack.title}</h2>
+                <h2 className="text-xl font-semibold text-textPrimary">{createdTrack.metadata?.title ?? "Untitled"}</h2>
                 <p className="text-textSecondary text-sm">Generated from your prompt</p>
               </div>
 
@@ -200,7 +200,7 @@ export default function NewTrackPlayer({ createdTrack }: Props) {
                 <div>
                   <p className="text-textSecondary mb-2">Rate this generation</p>
                   <div className="flex items-center gap-2">
-                    <Stars setStarsAction={(n) => rateTrack(n, createdTrack, session?.user.id)} />
+                    <Stars setStarsAction={(n) => rateTrack(n, createdTrack, session)} />
                   </div>
                 </div>
 
@@ -242,17 +242,17 @@ const formatTime = (seconds: number) => {
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 };
 
-const rateTrack = (rating: number, trackData: Track, userId?: string) => {
+const rateTrack = (rating: number, trackData: Track, session: Session) => {
   const ratingQuestion: QuestionData = {
     description: "Rating",
     type: QuestionType.Number,
     optional: false,
   };
 
-  const response = new SurveyResponse([ratingQuestion], trackData, "track-rating", userId);
+  const response = new SurveyResponse([ratingQuestion], trackData, "track-rating");
 
   response.addQuestionReponse(ratingQuestion, rating);
 
-  response.submit();
+  response.submit(session);
 };
 

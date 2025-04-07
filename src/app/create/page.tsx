@@ -3,12 +3,15 @@
 import React, { useEffect, useState } from 'react';
 import { Music, HelpCircle, Info, Wand2, Zap, RotateCcw } from 'lucide-react';
 import { AudioInput } from '@/components/AudioInput';
-import { AuthGuard } from '@/components/AuthGuard';
 import { Sidebar } from '@/components/Sidebar';
 import NewTrackPlayer from './NewTrackPlayer';
-import { Track } from '@/types/music';
-import { getRandomImageUrl } from '../lib/imageUtils';
 import { selectRandom, truncate } from '@/utils';
+import { authedPost } from '@/api';
+import { AuthStatus, useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { PromptDto, PromptResponseDto } from '../../../shared/dto';
+import { Track } from '../../../shared/track';
+import ErrorMessage from '@/components/ErrorMessage';
 
 // TODO: Revise these and make more
 const ALL_EXAMPLE_PROMPTS = [
@@ -28,6 +31,16 @@ export default function CreatePage() {
   const [creationStep, setCreationStep] = useState(1);
   const [examplePrompts, setExamplePrompts] = useState<string[]>([]);
 
+  const { session, status } = useAuth();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === AuthStatus.LoggedOut) {
+      router.push('/signin');
+    }
+  }, [session]);
+
   useEffect(() => {
     setExamplePrompts(selectRandom(ALL_EXAMPLE_PROMPTS, 3));
   }, []);
@@ -36,6 +49,8 @@ export default function CreatePage() {
   const [createdTrack, setCreatedTrack] = useState<Track | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    if (!session) return;
+
     e.preventDefault();
     if (!prompt.trim()) return;
 
@@ -44,9 +59,9 @@ export default function CreatePage() {
     setCreationStep(1);
 
     try {
-      // First step simulation
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setCreationStep(2);
+      // // First step simulation
+      // await new Promise(resolve => setTimeout(resolve, 1500));
+      // setCreationStep(2);
 
       const formData = new FormData();
       formData.append('prompt', prompt.trim());
@@ -54,38 +69,26 @@ export default function CreatePage() {
         formData.append('audioFile', audioFile);
       }
 
-      // Second step simulation
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setCreationStep(3);
+      // // Second step simulation
+      // await new Promise(resolve => setTimeout(resolve, 1500));
+      // setCreationStep(3);
 
-      const response = await fetch('/api/tracks/create', {
-        method: 'POST',
-        body: formData,
-      });
+      const body: PromptDto = {
+        prompt: prompt.trim(),
+        hasAudioAttchment: !!audioFile,
+      };
+
+      const response = await authedPost('/tracks/create', session, body);
 
       if (!response.ok) {
         throw new Error('Failed to create track');
       }
 
-      const data = await response.json();
+      const data = await response.json() as PromptResponseDto;
 
-      const coverUrl = await getRandomImageUrl(prompt);
+      console.log('Track created:', data);
 
-      const track: Track = {
-        id: data.id,
-        title: truncate(prompt, 30),
-        audioUrl: data.audioUrl,
-        playUrl: data.playUrl,
-        coverUrl,
-        duration: data.duration || 180, // 3 minutes in seconds
-        prompt,
-        description: prompt, // Use prompt as description
-        genre: 'AI Generated', // Default genre
-        artist: 'AI Music', // Default artist
-        createdAt: new Date().toISOString()
-      };
-
-      setCreatedTrack(track);
+      setCreatedTrack(data.track);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create track');
     } finally {
@@ -151,7 +154,7 @@ export default function CreatePage() {
   );
 
   return (
-    <AuthGuard>
+    <>
       <Sidebar />
       <div className="ml-64 min-h-screen">
         <main className="px-6 py-8">
@@ -168,12 +171,7 @@ export default function CreatePage() {
                 </p>
               </header>
 
-              {error && (
-                <div className="mb-8 p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg text-sm flex items-center">
-                  <Info className="mr-2 h-4 w-4 flex-shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
+              <ErrorMessage message={error ?? undefined} />
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
@@ -199,8 +197,8 @@ export default function CreatePage() {
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
                             placeholder="Describe the music you want to create... Be specific about genre, mood, instruments, tempo, etc."
-                            className="w-full h-32 placeholder-textSecondary bg-subContainer text-textPrimary rounded-lg p-4 resize-none focus:ring-2 focus:ring-altAccent focus:outline-none transition-all text-sm"
                             disabled={isLoading}
+                            className="h-32"
                           />
 
                           {showTips && (
@@ -318,6 +316,6 @@ export default function CreatePage() {
           )}
         </main>
       </div>
-    </AuthGuard>
+    </>
   );
 }
