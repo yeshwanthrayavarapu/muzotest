@@ -1,7 +1,7 @@
 import { QuestionType, QuestionData } from "@/types/feedback";
 import Feedback from "../feedback/Feedback";
 import { X } from "lucide-react";
-import { Track } from "@/types/music";
+import { Track } from "../../../shared/track";
 
 interface Props {
   closeAction: () => void;
@@ -18,6 +18,7 @@ export default function TrackFeedback({ closeAction, trackData }: Props) {
       attachedData={trackData}
       feedbackGroup="track-feedback"
     />
+    <div className="h-20"></div>
   </div>;
 }
 

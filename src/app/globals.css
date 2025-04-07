@@ -102,3 +102,7 @@
 .gradient-background {
     @apply bg-gradient-to-r from-accent to-altAccent
 }
+
+textarea, input, select {
+    @apply w-full placeholder-textSecondary bg-subContainer text-textPrimary rounded-lg px-4 py-3 resize-none focus:ring-2 focus:ring-altAccent focus:outline-none transition-all text-sm
+}

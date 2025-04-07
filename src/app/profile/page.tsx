@@ -1,34 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Mail, Phone, MapPin, Globe } from 'lucide-react';
+import { Settings, Mail, Phone, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { User, UserDetails } from '../../../shared/user';
+import * as api from '@/api';
+import Avatar from '@/components/Avatar';
 
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  bio: string;
-  profileImage: string;
-}
-
-export default function ProfilePage({ params }: { params: { id: string } }) {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+export default function ProfilePage() {
+  const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const userUuid = new URLSearchParams(document.location.search).get("u") as string
+
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`/api/user/${params.id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch profile');
-        }
-        const data = await response.json();
-        setProfile(data);
+        const data = await api.fetchProfile(userUuid);
+        setProfile(data!);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load profile');
       } finally {
@@ -37,7 +28,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
     };
 
     fetchProfile();
-  }, [params.id]);
+  }, []);
 
   if (loading) return <LoadingSpinner fullScreen={true} size='large' />;
 
@@ -54,13 +45,7 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           {/* Profile Header */}
           <div className="relative h-48 bg-gradient-to-r from-altAccent/20 to-blue-500/20">
             <div className="absolute -bottom-16 left-8">
-              <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-[#1e1b3b]">
-                <img
-                  src={profile.profileImage}
-                  alt={profile.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              <Avatar user={profile} size={128} />
             </div>
           </div>
 
@@ -68,11 +53,11 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           <div className="pt-20 px-8 pb-8">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-3xl font-bold text-textPrimary">{profile.name}</h1>
-                <p className="text-textSecondary mt-4 max-w-2xl">{profile.bio}</p>
+                <h1 className="text-3xl font-bold text-textPrimary">{profile.details?.name}</h1>
+                <p className="text-textSecondary mt-4 max-w-2xl">{profile.details?.bio}</p>
               </div>
               <Link
-                href={`/settings/${params.id}`}
+                href="/settings"
                 className="blue-button"
               >
                 <Settings size={20} />
@@ -88,11 +73,11 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
               </div>
               <div className="flex items-center gap-3 text-textSecondary">
                 <Phone size={20} className="text-accent" />
-                <span>{profile.phone}</span>
+                <span>{profile.details?.phone}</span>
               </div>
               <div className="flex items-center gap-3 text-textSecondary">
                 <MapPin size={20} className="text-accent" />
-                <span>{profile.location}</span>
+                <span>{profile.details?.location}</span>
               </div>
             </div>
           </div>

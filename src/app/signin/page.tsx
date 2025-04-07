@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import { LogIn } from 'lucide-react';
+import { isApiError, login } from '@/api';
+import { useAuth } from '@/contexts/AuthContext';
+import ErrorMessage from '@/components/ErrorMessage';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -12,24 +14,29 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const { login: setLogin, session } = useAuth();
+
+  useEffect(() => {
+    if (session) {
+      router.push('/');
+    }
+  }, [session]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false, // Prevent automatic redirection
-    });
+    const result = await login(email, password);
+
+    if (isApiError(result)) {
+      setError(result.message);
+    } else {
+      setLogin(result.session, result.user);
+    }
 
     setLoading(false);
-
-    if (result?.error) {
-      setError('Invalid email or password. Please try again.');
-    } else {
-      router.push('/create'); // Consistent redirect
-    }
+    return;
   };
 
   return (
@@ -37,7 +44,7 @@ export default function SignInPage() {
       <div className="bg-container p-8 rounded-xl shadow-xl w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-8 text-accent">Sign In to MUZO</h1>
 
-        {error && <p className="text-red-500 text-center">{error}</p>}
+        <ErrorMessage message={error} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -49,7 +56,6 @@ export default function SignInPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-subContainer rounded-lg focus:ring-2 focus:ring-altAccent focus:outline-none text-textPrimary"
               required
             />
           </div>
@@ -63,7 +69,6 @@ export default function SignInPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-subContainer rounded-lg focus:ring-2 focus:ring-altAccent focus:outline-none text-textPrimary"
               required
             />
           </div>

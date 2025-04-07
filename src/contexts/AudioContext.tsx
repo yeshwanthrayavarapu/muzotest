@@ -1,7 +1,7 @@
 'use client';
 
-import { Track } from '@/types/music';
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import { Track } from '../../shared/track';
 
 interface AudioContextType {
   currentTrack: Track | null;

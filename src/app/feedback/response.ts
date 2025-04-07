@@ -1,3 +1,5 @@
+import { authedPost } from "@/api";
+import { Session } from "@/contexts/AuthContext";
 import { QuestionData, QuestionResponse, QuestionType } from "@/types/feedback";
 
 export class SurveyResponse {
@@ -5,15 +7,14 @@ export class SurveyResponse {
   questionResponses: Record<string, QuestionResponse>;
   attachedData: any;
   feedbackGroup: string;
-  userId?: string;
+  userUuid?: string;
 
-  constructor(questionList?: QuestionData[], attachedData?: any, feedbackGroup?: string, userId?: string) {
+  constructor(questionList?: QuestionData[], attachedData?: any, feedbackGroup?: string) {
     this.time = new Date();
     this.questionResponses = {};
 
     this.attachedData = attachedData ?? {};
     this.feedbackGroup = feedbackGroup ?? "default";
-    this.userId = userId;
 
     this.addDefaultResponses(questionList ?? []);
   }
@@ -64,11 +65,8 @@ export class SurveyResponse {
     }
   }
 
-  submit(): Promise<Response> {
-    return fetch("/feedback/submit", {
-      method: "POST",
-      body: JSON.stringify(this),
-    });
+  submit(session: Session): Promise<Response> {
+    return authedPost('/feedback/submit', session, this);
   }
 }
 
